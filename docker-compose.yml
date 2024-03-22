@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+    mongodb:
+      container_name: mongodb
+      restart: always
+      image: mongodb/mongodb-community-server:7.0-ubi8
+      ports: 
+          - "27017:27017"
+      networks:
+          - web
+      volumes:
+          - $HOME/data/mongodb:/data/db
+      env_file:
+          - .env
+
+networks:
+    web:
+        external: true
+    # Both nocodb and baserow are lacking functionality to fully
+    # import everything from airtable. Holding off for now.
+
+    # nocodb:
+    #   container_name: nocodb
+    #   depends_on: 
+    #     root_db: 
+    #       condition: service_healthy
+    #   environment: 
+    #     NC_DB: "pg://$POSTGRES_DB:5432?u=$POSTGRES_USER&p=$POSTGRES_PASSWORD&d=$POSTGRES_DB"
+    #   image: "nocodb/nocodb:latest"
+    #   ports: 
+    #     - "8080:8080"
+    #   restart: always
+    #   volumes: 
+    #     - "nc_data:/usr/app/data"
+    #   env_file:
+    #       - .env
+
+    # root_db:
+    #   container_name: nocodb_db
+    #   healthcheck: 
+    #     interval: 10s
+    #     retries: 10
+    #     test: "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_PASSWORD\""
+    #     timeout: 2s
+    #   image: postgres
+    #   restart: always
+    #   volumes: 
+    #     - "db_data:/var/lib/postgresql/data"
+    #   env_file:
+    #       - .env
+    
+    # baserow:
+    #   container_name: baserow
+    #   image: baserow/baserow:1.23.2
+    #   environment:
+    #     BASEROW_PUBLIC_URL: 'http://localhost'
+    #   ports:
+    #     - "80:80"
+    #     - "443:443"
+    #   volumes:
+    #     - baserow_data:/baserow/data
+
+# volumes: 
+#   db_data: {}
+#   nc_data: {}
+#   baserow_data: 
