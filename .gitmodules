@@ -1,0 +1,3 @@
+[submodule "mesonet-ln-config"]
+	path = mesonet-ln-config
+	url = https://github.com/mt-climate-office/mesonet-ln-config.git
