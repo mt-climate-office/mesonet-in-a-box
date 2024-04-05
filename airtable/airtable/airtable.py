@@ -42,7 +42,7 @@ def load_airtable_schema(schema: Path = Path("../at_schema.json")) -> dict[str, 
 def _get_records(
     url: str,
     headers: dict[str, str],
-    params: dict[str, Any], 
+    params: dict[str, Any],
     cur_records: Optional[list[dict[str, Any]]] = None,
 ) -> tuple[list[dict[str, Any]], str]:
     if cur_records is None:
