@@ -24,7 +24,6 @@ class Table:
 
 
 def search_tables_for_match(tables: list[Table], search_val: str) -> Table:
-
     for table in tables:
         if table == search_val:
             return table.id
@@ -63,7 +62,6 @@ def get_airtable_records(
     fields: Optional[list[str]] = None,
     formula: str = None,
 ):
-
     table = search_tables_for_match(schema["tables"], table)
     url = f"{schema['api_url']}{schema['base_id']}/{table}"
     headers = {"Authorization": f"Bearer {getenv('AIRTABLE_API_KEY')}"}
