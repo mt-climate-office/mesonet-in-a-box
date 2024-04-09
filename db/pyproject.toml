@@ -1,16 +1,17 @@
 [tool.poetry]
-name = "airtable"
+name = "db"
 version = "0.1.0"
-description = ""
-authors = ["Colin Brust <colin.brust@gmail.com>"]
+description = "Tools for managing the mesonet-in-a-box TimescaleDB"
+authors = ["colinbrust <colin.brust@gmail.com>"]
+license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+psycopg = {extras = ["binary"], version = "^3.1.18"}
+polars = "^0.20.19"
 httpx = "^0.27.0"
-python-dotenv = "^1.0.1"
-polars = "^0.20.18"
-
+airtable = {path = "../airtable"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"

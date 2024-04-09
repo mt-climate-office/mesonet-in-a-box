@@ -10,7 +10,7 @@ cora_cmd \
 --echo=on \
 --input="{
 connect fcfc-mesonet-ln.cfc.umt.edu; 
-logger-query-ex ${1} FiveMin $TMPFILE most-recent 3 --format=\"TOACI1\" --reported-station-name=${1};
+logger-query-ex ${1} FiveMin $TMPFILE most-recent 3 --format=\"TOA5\" --reported-station-name=${1};
 }"
 
 # Remove first line of tempfile.
