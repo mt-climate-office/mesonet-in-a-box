@@ -1,16 +1,10 @@
 import httpx
 import polars as pl
-from os import getenv
 from pathlib import Path
 import json
 from typing import Any, Optional
 
 from dataclasses import dataclass
-
-
-from dotenv import load_dotenv
-
-load_dotenv("../../.env")
 
 
 @dataclass
@@ -51,20 +45,21 @@ def _get_records(
     response = httpx.get(url=url, headers=headers, params=params)
 
     data = response.json()
-    cur_records += data['records']
+    cur_records += data["records"]
 
     return cur_records, data.get("offset", None)
 
 
 def get_airtable_records(
     schema: dict[str, Any],
+    token: str,
     table: str,
     fields: Optional[list[str]] = None,
     formula: str = None,
 ):
     table = search_tables_for_match(schema["tables"], table)
     url = f"{schema['api_url']}{schema['base_id']}/{table}"
-    headers = {"Authorization": f"Bearer {getenv('AIRTABLE_API_KEY')}"}
+    headers = {"Authorization": f"Bearer {token}"}
 
     params = {}
     if fields:

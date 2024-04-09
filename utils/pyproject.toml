@@ -1,18 +1,15 @@
 [tool.poetry]
-name = "db"
+name = "mesonet-utils"
 version = "0.1.0"
-description = "Tools for managing the mesonet-in-a-box TimescaleDB"
+description = "Helper functions for managing mesonet data"
 authors = ["colinbrust <colin.brust@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "mesonet_utils"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-psycopg = {extras = ["binary"], version = "^3.1.18"}
-polars = "^0.20.19"
-httpx = "^0.27.0"
-airtable = {path = "../airtable"}
-mesonet-utils = {path = "../utils"}
+typer = "^0.12.3"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"

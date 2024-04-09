@@ -208,6 +208,7 @@ develop = false
 [package.dependencies]
 airtable = {path = "../airtable"}
 httpx = "^0.27.0"
+mesonet-utils = {path = "../utils"}
 polars = "^0.20.19"
 psycopg = {version = "^3.1.18", extras = ["binary"]}
 
@@ -548,6 +549,23 @@ files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
+
+[[package]]
+name = "mesonet-utils"
+version = "0.1.0"
+description = "Helper functions for managing mesonet data"
+category = "main"
+optional = false
+python-versions = "^3.10"
+files = []
+develop = false
+
+[package.dependencies]
+typer = "^0.12.3"
+
+[package.source]
+type = "directory"
+url = "utils"
 
 [[package]]
 name = "nest-asyncio"
@@ -1188,4 +1206,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0a384919e2276275e3e2d64dc79a29c4ede7d24787f126a513cbb7e9e9030884"
+content-hash = "1a0f1ec0e0762e5900d1c4256e3a6846e9d3335c8982989679de1e1b43af5c7d"

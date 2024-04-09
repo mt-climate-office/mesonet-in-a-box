@@ -6,11 +6,15 @@ authors = ["colinbrust <colin.brust@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+[tool.poetry.scripts]
+mesonet = "mesonet.main:app"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 typer = "^0.12.1"
 airtable = {path = "./airtable"}
 db = {path = "./db"}
+mesonet-utils = {path = "./utils"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
@@ -24,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 select = ["E4", "E7", "E9", "F", "B"]
 
 # 2. Avoid enforcing line-length violations (`E501`)
-ignore = ["E501"]
+ignore = ["E501", "B008"]
 
 # 3. Avoid trying to fix flake8-bugbear (`B`) violations.
 unfixable = ["B"]
