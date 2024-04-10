@@ -14,16 +14,18 @@ class Config:
     file: Path = Path.home() / ".config" / "mesonet/config.json"
     airtable_token: Optional[str] = None
     data_dir: Optional[Path] = None
+    env_file: Optional[Path] = None
 
     def __post_init__(self):
         self.directory = self.parse_as_path(self.directory)
         self.file = self.parse_as_path(self.file)
         self.data_dir = self.parse_as_path(self.data_dir)
+        self.env_file = self.parse_as_path(self.env_file)
 
     @staticmethod
     def parse_as_path(f: Path | str | None) -> Path:
         try:
-            return Path(f)
+            return Path(f).absolute()
         except TypeError:
             return None
 

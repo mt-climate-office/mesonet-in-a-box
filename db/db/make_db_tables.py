@@ -1,32 +1,24 @@
-from airtable import get_airtable_records, load_airtable_schema
+import airtable as at
 import polars as pl
 from mesonet_utils import Config
 from pathlib import Path
+import psycopg
+from sqlalchemy import URL
 
 CONFIG = Config.load(Config.file)
+token: str = CONFIG.airtable_token
+schema: Path = CONFIG.directory / "at_schema.json"
 
-
-def get_stations(
-    token: str = CONFIG.airtable_token,
-    schema: Path = CONFIG.directory / "at_schema.json",
-) -> pl.DataFrame:
-    stations = get_airtable_records(
-        schema=load_airtable_schema(schema),
-        token=token,
-        table="stations",
-        fields=[
-            "name",
-            "station",
-            "status",
-            "date_installed",
-            "nwsli_id",
-            "sub_network",
-            "latitude",
-            "longitude",
-            "report_mco",
-            "elevation",
-            "ace_grid",
-        ],
+def connection(
+    username: str, 
+    password: str,
+    host: str,
+    database: str,
+) -> str:
+    return URL.create(
+        "postgresql+psycopg",
+        username=username,
+        password=password,
+        host=host,
+        database=database,
     )
-
-    return stations

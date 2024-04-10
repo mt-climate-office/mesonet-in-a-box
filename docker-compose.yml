@@ -2,10 +2,11 @@ version: '3.9'
 
 services:
     db:
-        # platform: linux/arm64/v8
         container_name: db
         restart: always
-        image: timescale/timescaledb:latest-pg16
+        healthcheck:
+            test: "exit 0"
+        image: timescale/timescaledb-ha:pg16
         ports: 
             - "5432:5432"
         networks:

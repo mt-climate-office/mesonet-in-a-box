@@ -91,4 +91,10 @@ def configure(
 
     copy(Path(at_schema).expanduser(), CONFIG.directory)
 
+    env_file = typer.prompt(
+        "Where is the .env file located that has all tokens and passwords needed for your project? Defaults to",
+        default="./.env",
+    )
+
+    CONFIG.env_file = Path(env_file).absolute()
     CONFIG.write()
