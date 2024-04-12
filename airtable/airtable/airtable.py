@@ -109,6 +109,7 @@ def get_stations(
             "latitude",
             "longitude",
             "report_mco",
+            "report_mesowest",
             "elevation",
             "ace_grid",
         ],
