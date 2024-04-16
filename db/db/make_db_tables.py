@@ -7,6 +7,7 @@ from sqlalchemy import URL, create_engine, text
 from sqlalchemy.engine.base import Engine
 import os
 from dotenv import load_dotenv
+from models import Base
 
 CONFIG = Config.load(Config.file)
 token: str = CONFIG.airtable_token
@@ -35,6 +36,10 @@ def create_data_schema(engine: Engine):
         conn.execute(text('CREATE SCHEMA IF NOT EXISTS data'))
         conn.commit()
 
+def create_all_tables(engine):
+    Base.metadata.create_all(engine)
+
+
         
 
 if __name__ == "__main__":
@@ -47,4 +52,4 @@ if __name__ == "__main__":
     )
 
     engine = create_engine(conn)
-    create_data_schema(engine)
+    create_all_tables(engine)
