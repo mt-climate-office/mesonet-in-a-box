@@ -1,12 +1,10 @@
-import airtable as at
-import polars as pl
 from mesonet_utils import Config
 from pathlib import Path
-import psycopg
 from sqlalchemy import URL, create_engine, text
 from sqlalchemy.engine.base import Engine
 import os
 from dotenv import load_dotenv
+from sqlalchemy.orm import DeclarativeBase
 from models import Base
 
 CONFIG = Config.load(Config.file)
@@ -17,7 +15,7 @@ if CONFIG.env_file.exists():
     load_dotenv(CONFIG.env_file)
 
 def make_connection_string(
-    username: str, 
+    username: str,
     password: str,
     host: str,
     database: str,
@@ -33,23 +31,32 @@ def make_connection_string(
 
 def create_data_schema(engine: Engine):
     with engine.connect() as conn:
-        conn.execute(text('CREATE SCHEMA IF NOT EXISTS data'))
+        conn.execute(text("CREATE SCHEMA IF NOT EXISTS data"))
         conn.commit()
 
-def create_all_tables(engine):
-    Base.metadata.create_all(engine)
+
+def create_network_schema(engine: Engine):
+    with engine.connect() as conn:
+        conn.execute(text("CREATE SCHEMA IF NOT EXISTS network"))
+        conn.commit()
 
 
-        
+def create_base_tables(engine: Engine, base: DeclarativeBase):
+    base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
-
     conn = make_connection_string(
         os.getenv("POSTGRES_USER"),
         os.getenv("POSTGRES_PASSWORD"),
         "localhost",
-        os.getenv("POSTGRES_DB")
+        os.getenv("POSTGRES_DB"),
     )
 
     engine = create_engine(conn)
-    create_all_tables(engine)
+
+    create_network_schema(engine)
+    create_data_schema(engine)
+    Base.metadata.drop_all(bind=engine)
+    print('did this')
+    create_base_tables(engine, base=Base)
+

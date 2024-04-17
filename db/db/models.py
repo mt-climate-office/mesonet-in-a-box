@@ -1,108 +1,150 @@
 from __future__ import annotations
-import asyncio
-import datetime
-from datetime import date
-from typing import List
-from sqlalchemy import ForeignKey, String, Date, Numeric, Identity, BigInteger
-from sqlalchemy import CheckConstraint, UniqueConstraint
+from datetime import date, datetime
+from typing import List, Any
+from sqlalchemy import ForeignKey, String, Identity
+from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.ext.asyncio import async_sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.orm import relationship
-
-from mesonet_utils import Config
-from pathlib import Path
-import psycopg
-from sqlalchemy import create_engine
-import os
-from dotenv import load_dotenv
-
-CONFIG = Config.load(Config.file)
-token: str = CONFIG.airtable_token
-schema: Path = CONFIG.directory / "at_schema.json"
-
-if CONFIG.env_file.exists():
-    load_dotenv(CONFIG.env_file)
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class Base(AsyncAttrs, DeclarativeBase):
-    pass
+    type_annotation_map = {dict[str, Any]: JSONB}
 
-
-class Stations(Base):
-    __tablename__ = 'stations'
-    __table_args__ = (
-        UniqueConstraint("station"),
-        {'schema': "data"},
-    )    
-
-    station: Mapped[str] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    status: Mapped[str] = mapped_column(String, CheckConstraint("status IN ('pending', 'active', 'decommissioned', 'inactive')"))
-    date_installed: Mapped[date]
-    latitude: Mapped[float]
-    longitude: Mapped[float]
-    elevation: Mapped[float]
-    sensors: Mapped[List["Sensors"]] = relationship("Sensors", secondary="station_sensors", back_populates="stations")
-
-
-class Sensors(Base):
-    __tablename__ = 'sensors'
-    __table_args__ = (
-        UniqueConstraint("model", "serial_number"),
-        {'schema': "data"},
-    )
-
-    model: Mapped[str] = mapped_column(primary_key=True)
-    serial_number: Mapped[str] = mapped_column(primary_key=True)
-    date_start: Mapped[date] = mapped_column(primary_key=True)
-    date_end: Mapped[date]
-    station: Mapped[str] = mapped_column(ForeignKey("stations.station"))
-    stations: Mapped[List["Stations"]] = relationship("Stations", secondary="station_sensors", back_populates="sensors")
-    elements: Mapped[List["Elements"]] = relationship("Elements", secondary="sensor_elements", back_populates="sensors")
-
-
-class StationSensors(Base):
-    __tablename__ = 'station_sensors'
-    __table_args__ = {'schema': "data"}
-
-    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
-    station: Mapped[str] = mapped_column(String, ForeignKey("stations.station"))
-    model: Mapped[str] = mapped_column(String, ForeignKey("sensors.model"))
-    serial_number: Mapped[str] = mapped_column(String, ForeignKey("sensors.serial_number"))
-    date_start: Mapped[date] = mapped_column(Date, ForeignKey("sensors.date_start"))
 
 class Elements(Base):
-    __tablename__ = 'elements'
-    __table_args__ = (
-        UniqueConstraint("element"),
-        {'schema': "data"},
-    )
+    __tablename__ = "elements"
+    __table_args__ = ({"schema": "network"},)
 
-    element: Mapped[str] = mapped_column(primary_key=True)
+    element: Mapped[str] = mapped_column(String, primary_key=True)
     public: Mapped[bool]
     description: Mapped[str]
     description_short: Mapped[str]
     si_units: Mapped[str]
     us_units: Mapped[str]
-    sensors: Mapped[List["Sensors"]] = relationship("Sensors", secondary="sensor_elements", back_populates="elements")
-
-
-class SensorElements(Base):
-    __tablename__ = 'sensor_elements'
-    __table_args__ = (
-        {'schema': "data"}
+    models: Mapped[List["ComponentModels"]] = relationship(
+        "ComponentModels", back_populates="elements"
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
-    element: Mapped[str] = relationship(ForeignKey("elements.element"))
-    sensor: Mapped[str] = relationship(ForeignKey("sensors.model"))
+
+class ComponentModels(Base):
+    __tablename__ = "component_models"
+    __table_args__ = {"schema": "network"}
+
+    model: Mapped[str] = mapped_column(primary_key=True)
+    manufacturer: Mapped[str]
+    type: Mapped[str]
+    elements: Mapped[List["Elements"]] = relationship(
+        "Elements", secondary="network.model_elements", back_populates="models"
+    )
 
 
+class ComponentElements(Base):
+    __tablename__ = "component_elements"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["model"],
+            [
+                "network.component_models.model",
+            ],
+        ),
+        {"schema": "network"},
+    )
+
+    model: Mapped[str] = mapped_column(
+        String, ForeignKey("network.component_models.model"), primary_key=True
+    )
+    element: Mapped[str] = mapped_column(
+        String, ForeignKey("network.elements.element"), primary_key=True
+    )
+    qc_values = mapped_column(JSONB)
 
 
+class Stations(Base):
+    __tablename__ = "stations"
+    __table_args__ = (
+        UniqueConstraint("station"),
+        {"schema": "network"},
+    )
+
+    station: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    status: Mapped[str] = mapped_column(
+        String,
+        CheckConstraint(
+            "status IN ('pending', 'active', 'decommissioned', 'inactive')"
+        ),
+    )
+    date_installed: Mapped[date]
+    latitude: Mapped[float]
+    longitude: Mapped[float]
+    elevation: Mapped[float]
+    components: Mapped[List["Deployments"]] = relationship(
+        "Deployments",
+        secondary="network.deployments",
+        back_populates="stations",
+    )
 
 
+class Inventory(Base):
+    __tablename__ = "inventory"
+    __table_args__ = (
+        UniqueConstraint("model", "serial_number"),
+        {"schema": "network"}
+    )
+
+    model: Mapped[str] = mapped_column(ForeignKey("network.component_models.model"), primary_key=True)
+    serial_number: Mapped[str] = mapped_column(primary_key=True)
+    attributes = mapped_column(JSONB)
+    deployments: Mapped[List["Deployments"]] = relationship("Deployments", back_populates="inventory")
+
+
+class Deployments(Base):
+    __tablename__ = "deployments"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["model", "serial_number"],
+            ["network.inventory.model", "network.inventory.serial_number"],
+        ),
+        UniqueConstraint("station", "model", "serial_number", "date_assigned"),
+        UniqueConstraint("id"),
+        {"schema": "network"}
+    )
+
+    id: Mapped[int] = mapped_column(Identity(), primary_key=True)
+    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), index=True, nullable=False, primary_key=True)
+    model: Mapped[str] = mapped_column(index=True, nullable=False, primary_key=True)
+    serial_number: Mapped[str] = mapped_column(nullable=False, primary_key=True)
+    date_assigned: Mapped[date] = mapped_column(nullable=False, primary_key=True)
+    date_start: Mapped[date]
+    date_end: Mapped[date]
+    inventory: Mapped["Inventory"] = relationship("Inventory",back_populates="deployments")
+    observations: Mapped[List["Observations"]] = relationship("Observation", back_populates="deployment_relationship")
+
+class Raw(Base):
+    __tablename__ = "raw"
+    __table_args__ = (
+        {"schema": "data"}
+    )
+
+    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), primary_key=True)
+    datetime: Mapped[datetime]
+    created_at: Mapped[datetime]
+    data = mapped_column(JSONB)
+
+
+class Observations(Base):
+    __tablename__ = "observations"
+    __table_args__ = (
+        {"schema": "data"}
+    )
+
+    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), primary_key=True)
+    element: Mapped[str] = mapped_column(ForeignKey("network.elements.element"), primary_key=True)
+    deployment: Mapped[int] = mapped_column(ForeignKey("network.deployments.id"), primary_key=True, index=True)
+    datetime: Mapped[datetime] = mapped_column(primary_key=True, index=True)
+    value: Mapped[float]
+    qc_flags: Mapped[int]
+    deployment_relationship: Mapped["Deployments"] = relationship("Deployments", back_populates="observation")
