@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Any
-from sqlalchemy import ForeignKey, String, Identity, DateTime
+from sqlalchemy import ForeignKey, String, Identity
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -142,8 +142,8 @@ class Raw(Base):
         ForeignKey("network.stations.station"), primary_key=True
     )
 
-    datetime: Mapped[datetime] 
-    created_at: Mapped[datetime] # type: ignore
+    datetime: Mapped[datetime]
+    created_at: Mapped[datetime]  # type: ignore
     data = mapped_column(JSONB)
 
 

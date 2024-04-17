@@ -1,10 +1,9 @@
-from mesonet_utils import Config # type: ignore
+from mesonet_utils import Config  # type: ignore
 from pathlib import Path
 from sqlalchemy import URL, create_engine, text
 from sqlalchemy.engine.base import Engine
 import os
 from dotenv import load_dotenv
-from sqlalchemy.orm import DeclarativeBase
 from models import Base
 
 CONFIG = Config.load(Config.file)
@@ -21,7 +20,6 @@ def make_connection_string(
     host: str,
     database: str,
 ) -> URL:
-
     return URL.create(
         "postgresql+psycopg",
         username=username,
@@ -43,20 +41,19 @@ def create_network_schema(engine: Engine):
         conn.commit()
 
 
-
 if __name__ == "__main__":
     pg_username = os.getenv("POSTGRES_USER")
     if pg_username is None:
-        raise ValueError("POSTGRES_USER environment variable couldn't be found.") 
-    
+        raise ValueError("POSTGRES_USER environment variable couldn't be found.")
+
     pg_pw = os.getenv("POSTGRES_PASSWORD")
     if pg_pw is None:
-        raise ValueError("POSTGRES_PASSWORD environment variable couldn't be found.") 
-    
+        raise ValueError("POSTGRES_PASSWORD environment variable couldn't be found.")
+
     pg_db = os.getenv("POSTGRES_DB")
     if pg_db is None:
-        raise ValueError("POSTGRES_DB environment variable couldn't be found.") 
-    
+        raise ValueError("POSTGRES_DB environment variable couldn't be found.")
+
     conn = make_connection_string(
         pg_username,
         pg_pw,
