@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Any
-from sqlalchemy import ForeignKey, String, Identity
+from sqlalchemy import ForeignKey, String, Identity, DateTime
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -90,15 +90,16 @@ class Stations(Base):
 
 class Inventory(Base):
     __tablename__ = "inventory"
-    __table_args__ = (
-        UniqueConstraint("model", "serial_number"),
-        {"schema": "network"}
-    )
+    __table_args__ = (UniqueConstraint("model", "serial_number"), {"schema": "network"})
 
-    model: Mapped[str] = mapped_column(ForeignKey("network.component_models.model"), primary_key=True)
+    model: Mapped[str] = mapped_column(
+        ForeignKey("network.component_models.model"), primary_key=True
+    )
     serial_number: Mapped[str] = mapped_column(primary_key=True)
     attributes = mapped_column(JSONB)
-    deployments: Mapped[List["Deployments"]] = relationship("Deployments", back_populates="inventory")
+    deployments: Mapped[List["Deployments"]] = relationship(
+        "Deployments", back_populates="inventory"
+    )
 
 
 class Deployments(Base):
@@ -110,41 +111,58 @@ class Deployments(Base):
         ),
         UniqueConstraint("station", "model", "serial_number", "date_assigned"),
         UniqueConstraint("id"),
-        {"schema": "network"}
+        {"schema": "network"},
     )
 
     id: Mapped[int] = mapped_column(Identity(), primary_key=True)
-    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), index=True, nullable=False, primary_key=True)
+    station: Mapped[str] = mapped_column(
+        ForeignKey("network.stations.station"),
+        index=True,
+        nullable=False,
+        primary_key=True,
+    )
     model: Mapped[str] = mapped_column(index=True, nullable=False, primary_key=True)
     serial_number: Mapped[str] = mapped_column(nullable=False, primary_key=True)
     date_assigned: Mapped[date] = mapped_column(nullable=False, primary_key=True)
     date_start: Mapped[date]
     date_end: Mapped[date]
-    inventory: Mapped["Inventory"] = relationship("Inventory",back_populates="deployments")
-    observations: Mapped[List["Observations"]] = relationship("Observation", back_populates="deployment_relationship")
+    inventory: Mapped["Inventory"] = relationship(
+        "Inventory", back_populates="deployments"
+    )
+    observations: Mapped[List["Observations"]] = relationship(
+        "Observation", back_populates="deployment_relationship"
+    )
+
 
 class Raw(Base):
     __tablename__ = "raw"
-    __table_args__ = (
-        {"schema": "data"}
+    __table_args__ = {"schema": "data"}
+
+    station: Mapped[str] = mapped_column(
+        ForeignKey("network.stations.station"), primary_key=True
     )
 
-    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), primary_key=True)
-    datetime: Mapped[datetime]
-    created_at: Mapped[datetime]
+    datetime: Mapped[datetime] 
+    created_at: Mapped[datetime] # type: ignore
     data = mapped_column(JSONB)
 
 
 class Observations(Base):
     __tablename__ = "observations"
-    __table_args__ = (
-        {"schema": "data"}
-    )
+    __table_args__ = {"schema": "data"}
 
-    station: Mapped[str] = mapped_column(ForeignKey("network.stations.station"), primary_key=True)
-    element: Mapped[str] = mapped_column(ForeignKey("network.elements.element"), primary_key=True)
-    deployment: Mapped[int] = mapped_column(ForeignKey("network.deployments.id"), primary_key=True, index=True)
+    station: Mapped[str] = mapped_column(
+        ForeignKey("network.stations.station"), primary_key=True
+    )
+    element: Mapped[str] = mapped_column(
+        ForeignKey("network.elements.element"), primary_key=True
+    )
+    deployment: Mapped[int] = mapped_column(
+        ForeignKey("network.deployments.id"), primary_key=True, index=True
+    )
     datetime: Mapped[datetime] = mapped_column(primary_key=True, index=True)
     value: Mapped[float]
     qc_flags: Mapped[int]
-    deployment_relationship: Mapped["Deployments"] = relationship("Deployments", back_populates="observation")
+    deployment_relationship: Mapped["Deployments"] = relationship(
+        "Deployments", back_populates="observation"
+    )

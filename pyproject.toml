@@ -13,11 +13,13 @@ mesonet = "mesonet.main:app"
 python = "^3.10"
 typer = "^0.12.1"
 airtable = {path = "./airtable"}
-db = {path = "./db"}
+db = {path = "db"}
 mesonet-utils = {path = "./utils"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
+mypy = "^1.9.0"
+ruff = "^0.3.7"
 
 [build-system]
 requires = ["poetry-core"]
