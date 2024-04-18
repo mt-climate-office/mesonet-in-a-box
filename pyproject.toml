@@ -15,6 +15,7 @@ typer = "^0.12.1"
 airtable = {path = "./airtable"}
 db = {path = "db"}
 mesonet-utils = {path = "./utils"}
+api = {path = "api"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
