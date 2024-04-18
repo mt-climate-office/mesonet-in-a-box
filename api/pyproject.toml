@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = "API for mesonet-in-a-box"
+authors = ["colinbrust <colin.brust@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+litestar = "^2.8.2"
+SQLAlchemy = "^2.0.29"
+polars = "^0.20.21"
+psycopg = "^3.1.18"
+Pint = "^0.23"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

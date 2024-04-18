@@ -56,7 +56,7 @@ def get_airtable_records(
     table: str,
     fields: Optional[list[str]] = None,
     formula: str = None,
-    with_record: bool = False
+    with_record: bool = False,
 ):
     table = search_tables_for_match(schema["tables"], table)
     url = f"{schema['api_url']}{schema['base_id']}/{table}"
@@ -86,7 +86,8 @@ def get_airtable_records(
 
 def unlist_len1_list_columns(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(
-        col.list.first() for col in df 
+        col.list.first()
+        for col in df
         if col.dtype == pl.List and col.list.len().max() == 1
     )
 
@@ -94,6 +95,7 @@ def unlist_len1_list_columns(df: pl.DataFrame) -> pl.DataFrame:
 def get_stations(
     token: str,
     schema: Path,
+    as_json: bool = False,
 ) -> pl.DataFrame:
     stations = get_airtable_records(
         schema=load_airtable_schema(schema),
@@ -115,14 +117,16 @@ def get_stations(
         ],
     )
     stations = unlist_len1_list_columns(stations)
+    if as_json:
+        return stations.write_json(row_oriented=True, pretty=True)
     return stations
 
 
-def get_elements(    
+def get_elements(
     token: str,
     schema: Path,
+    as_json: bool = False,
 ) -> pl.DataFrame:
-
     elements = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -139,7 +143,7 @@ def get_elements(
             "usace_units",
         ],
     )
-    
+
     elements = unlist_len1_list_columns(elements)
 
     elements = elements.with_columns(
@@ -147,14 +151,16 @@ def get_elements(
         pl.col("description_short").str.replace("@ \{elevation_cm\}", ""),
         pl.col("description").str.replace("at \{elevation_cm\}", ""),
     )
-
+    if as_json:
+        return elements.write_json(row_oriented=True, pretty=True)
     return elements
 
-def get_deployments(    
+
+def get_deployments(
     token: str,
     schema: Path,
+    as_json: bool = False,
 ) -> pl.DataFrame:
-    
     deployments = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -170,21 +176,21 @@ def get_deployments(
             "date_end",
         ],
     )
-    
+
     deployments = unlist_len1_list_columns(deployments)
     deployments = deployments.with_columns(
-        pl.col("date_start").cast(pl.Date),
-        pl.col("date_end").cast(pl.Date)
+        pl.col("date_start").cast(pl.Date), pl.col("date_end").cast(pl.Date)
     )
-
+    if as_json:
+        return deployments.write_json(row_oriented=True, pretty=True)
     return deployments
 
 
 def get_model_elements(
     token: str,
     schema: Path,
+    as_json: bool = False,
 ) -> pl.DataFrame:
-    
     model_elements = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -200,7 +206,7 @@ def get_model_elements(
             "flag_min",
             "flag_max",
             "shared_sensor",
-            "like_element"
+            "like_element",
         ],
     )
 
@@ -208,5 +214,6 @@ def get_model_elements(
     model_elements = model_elements.with_columns(
         pl.col("element").str.replace("_\{elevation_cm\}", ""),
     )
-
+    if as_json:
+        return model_elements.write_json(row_oriented=True, pretty=True)
     return model_elements

@@ -8,3 +8,28 @@ repos:
         args: [ --fix ]
       # Run the formatter.
       - id: ruff-format
+
+repos:
+-   repo: https://github.com/python-poetry/poetry
+    rev: 1.8.2
+    hooks:
+    -   id: poetry-check
+        args: ["-C", "./api"]
+    -   id: poetry-lock
+        args: ["-C", "./api"]
+    -   id: poetry-check
+        args: ["-C", "./db"]
+    -   id: poetry-lock
+        args: ["-C", "./db"]
+    -   id: poetry-check
+        args: ["-C", "./airtable"]
+    -   id: poetry-lock
+        args: ["-C", "./airtable"]
+    -   id: poetry-check
+        args: ["-C", "./utils"]
+    -   id: poetry-lock
+        args: ["-C", "./utils"]
+    -   id: poetry-export
+        args: ["-C", "./api", "-f", "requirements.txt", "-o", "./api/requirements.txt"]
+    -   id: poetry-check
+    -   id: poetry-lock
