@@ -1,35 +1,36 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.3.5
     hooks:
-      # Run the linter.
       - id: ruff
-        args: [ --fix ]
-      # Run the formatter.
+        args: [--fix]
       - id: ruff-format
 
-repos:
--   repo: https://github.com/python-poetry/poetry
+  - repo: https://github.com/python-poetry/poetry
     rev: 1.8.2
     hooks:
-    -   id: poetry-check
+      - id: poetry-check
         args: ["-C", "./api"]
-    -   id: poetry-lock
+      - id: poetry-lock
         args: ["-C", "./api"]
-    -   id: poetry-check
+      - id: poetry-check
         args: ["-C", "./db"]
-    -   id: poetry-lock
+      - id: poetry-lock
         args: ["-C", "./db"]
-    -   id: poetry-check
+      - id: poetry-check
         args: ["-C", "./airtable"]
-    -   id: poetry-lock
+      - id: poetry-lock
         args: ["-C", "./airtable"]
-    -   id: poetry-check
+      - id: poetry-check
         args: ["-C", "./utils"]
-    -   id: poetry-lock
+      - id: poetry-lock
         args: ["-C", "./utils"]
-    -   id: poetry-export
+      - id: poetry-export
         args: ["-C", "./api", "-f", "requirements.txt", "-o", "./api/requirements.txt"]
-    -   id: poetry-check
-    -   id: poetry-lock
+      - id: poetry-check
+      - id: poetry-lock
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.9.0'
+    hooks:
+      - id: mypy

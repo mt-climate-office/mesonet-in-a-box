@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import httpx
 import polars as pl
 from pathlib import Path
@@ -13,13 +15,22 @@ class Table:
     short_name: str
     id: str
 
-    def __eq__(self, other: str) -> bool:
-        return self.name == other or self.short_name == other or self.id == other
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Table):
+            return (
+                self.name == other.name
+                or self.short_name == other.name
+                or self.id == other.name
+            )
+
+        raise NotImplementedError(
+            f"Table equal comparison not implemented for type: {type(other)}"
+        )
 
 
-def search_tables_for_match(tables: list[Table], search_val: str) -> Table:
+def search_tables_for_match(tables: list[Table], search_val: str) -> str:
     for table in tables:
-        if table == search_val:
+        if table == Table(search_val, search_val, search_val):
             return table.id
 
     raise ValueError(
@@ -28,9 +39,9 @@ def search_tables_for_match(tables: list[Table], search_val: str) -> Table:
 
 
 def load_airtable_schema(schema: Path = Path("../at_schema.json")) -> dict[str, Any]:
-    schema = json.load(schema.open())
-    schema["tables"] = [Table(**x) for x in schema["tables"]]
-    return schema
+    schema_dict = json.load(schema.open())
+    schema_dict["tables"] = [Table(**x) for x in schema_dict["tables"]]
+    return schema_dict
 
 
 def _get_records(
@@ -55,14 +66,14 @@ def get_airtable_records(
     token: str,
     table: str,
     fields: Optional[list[str]] = None,
-    formula: str = None,
+    formula: Optional[str] = None,
     with_record: bool = False,
-):
+) -> pl.DataFrame:
     table = search_tables_for_match(schema["tables"], table)
     url = f"{schema['api_url']}{schema['base_id']}/{table}"
     headers = {"Authorization": f"Bearer {token}"}
 
-    params = {}
+    params: dict[str, Any] = {}
     if fields:
         params["fields[]"] = fields
 
@@ -96,7 +107,7 @@ def get_stations(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame:
+) -> pl.DataFrame | dict[str, Any]:
     stations = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -118,7 +129,7 @@ def get_stations(
     )
     stations = unlist_len1_list_columns(stations)
     if as_json:
-        return stations.write_json(row_oriented=True, pretty=True)
+        return stations.to_dict(as_series=False)
     return stations
 
 
@@ -126,7 +137,7 @@ def get_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame:
+) -> pl.DataFrame | dict[str, Any]:
     elements = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -152,7 +163,7 @@ def get_elements(
         pl.col("description").str.replace("at \{elevation_cm\}", ""),
     )
     if as_json:
-        return elements.write_json(row_oriented=True, pretty=True)
+        return elements.to_dict(as_series=False)
     return elements
 
 
@@ -160,7 +171,7 @@ def get_deployments(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame:
+) -> pl.DataFrame | dict[str, Any]:
     deployments = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -182,7 +193,7 @@ def get_deployments(
         pl.col("date_start").cast(pl.Date), pl.col("date_end").cast(pl.Date)
     )
     if as_json:
-        return deployments.write_json(row_oriented=True, pretty=True)
+        return deployments.to_dict(as_series=False)
     return deployments
 
 
@@ -190,7 +201,7 @@ def get_model_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame:
+) -> pl.DataFrame | dict[str, Any]:
     model_elements = get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -215,5 +226,5 @@ def get_model_elements(
         pl.col("element").str.replace("_\{elevation_cm\}", ""),
     )
     if as_json:
-        return model_elements.write_json(row_oriented=True, pretty=True)
+        return model_elements.to_dict(as_series=False)
     return model_elements

@@ -11,6 +11,9 @@ import typer
 CONFIG = Config.load(Config.file)
 
 
+class DirectoryDoesNotExistError(Exception): ...
+
+
 def callback(
     check: Optional[bool] = typer.Option(
         True,
@@ -89,6 +92,10 @@ def configure(
         default="./at_schema.json",
     )
 
+    if CONFIG.directory is None or not CONFIG.directory.exists():
+        raise DirectoryDoesNotExistError(
+            f"{CONFIG.directory} is not a valid directory. Please rerun this command with a valid directory."
+        )
     copy(Path(at_schema).expanduser(), CONFIG.directory)
 
     env_file = typer.prompt(
