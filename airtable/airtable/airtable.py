@@ -44,7 +44,7 @@ def load_airtable_schema(schema: Path = Path("../at_schema.json")) -> dict[str, 
     return schema_dict
 
 
-def _get_records(
+async def _get_records(
     url: str,
     headers: dict[str, str],
     params: dict[str, Any],
@@ -53,7 +53,8 @@ def _get_records(
     if cur_records is None:
         cur_records = []
 
-    response = httpx.get(url=url, headers=headers, params=params)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url=url, headers=headers, params=params)
 
     data = response.json()
     cur_records += data["records"]
@@ -61,7 +62,7 @@ def _get_records(
     return cur_records, data.get("offset", None)
 
 
-def get_airtable_records(
+async def get_airtable_records(
     schema: dict[str, Any],
     token: str,
     table: str,
@@ -80,10 +81,10 @@ def get_airtable_records(
     if formula:
         params["filterByFormula"] = formula
 
-    data, offset = _get_records(url, headers, params, None)
+    data, offset = await _get_records(url, headers, params, None)
     while offset:
         params = {"offset": offset}
-        data, offset = _get_records(url, headers, {"offset": offset}, data)
+        data, offset = await _get_records(url, headers, {"offset": offset}, data)
 
     out = []
     for record in data:
@@ -103,12 +104,12 @@ def unlist_len1_list_columns(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def get_stations(
+async def get_stations(
     token: str,
     schema: Path,
     as_json: bool = False,
 ) -> pl.DataFrame | dict[str, Any]:
-    stations = get_airtable_records(
+    stations = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
         table="stations",
@@ -133,12 +134,12 @@ def get_stations(
     return stations
 
 
-def get_elements(
+async def get_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
 ) -> pl.DataFrame | dict[str, Any]:
-    elements = get_airtable_records(
+    elements = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
         table="elements",
@@ -167,12 +168,12 @@ def get_elements(
     return elements
 
 
-def get_deployments(
+async def get_deployments(
     token: str,
     schema: Path,
     as_json: bool = False,
 ) -> pl.DataFrame | dict[str, Any]:
-    deployments = get_airtable_records(
+    deployments = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
         table="deployments",
@@ -197,12 +198,12 @@ def get_deployments(
     return deployments
 
 
-def get_model_elements(
+async def get_model_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
 ) -> pl.DataFrame | dict[str, Any]:
-    model_elements = get_airtable_records(
+    model_elements = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
         table="model_elements",
