@@ -130,7 +130,7 @@ async def get_stations(
     )
     stations = unlist_len1_list_columns(stations)
     if as_json:
-        return stations.to_dict(as_series=False)
+        return stations.to_dicts()
     return stations
 
 
@@ -164,7 +164,7 @@ async def get_elements(
         pl.col("description").str.replace("at \{elevation_cm\}", ""),
     )
     if as_json:
-        return elements.to_dict(as_series=False)
+        return elements.to_dicts()
     return elements
 
 
@@ -194,7 +194,7 @@ async def get_deployments(
         pl.col("date_start").cast(pl.Date), pl.col("date_end").cast(pl.Date)
     )
     if as_json:
-        return deployments.to_dict(as_series=False)
+        return deployments.to_dicts()
     return deployments
 
 
@@ -227,5 +227,5 @@ async def get_model_elements(
         pl.col("element").str.replace("_\{elevation_cm\}", ""),
     )
     if as_json:
-        return model_elements.to_dict(as_series=False)
+        return model_elements.to_dicts()
     return model_elements

@@ -2,6 +2,7 @@ from msgspec import Struct
 from enum import Enum
 from typing import TYPE_CHECKING
 from datetime import date
+from litestar.dto import MsgspecDTO, DTOConfig
 
 if TYPE_CHECKING:
     pass
@@ -14,23 +15,33 @@ class StationStatus(Enum):
     inactive: str = "inactive"
 
 
+class Test(Struct):
+    status: StationStatus
+
+
 class Station(Struct):
     station: str
     name: str
     status: StationStatus
-    date_installed: date
+    date_installed: date | None
     latitude: float
     longitude: float
     elevation: float
+    latitude_rounded: float | None = None
+    longitude_rounded: float | None = None
+
+    def __post_init__(self):
+        self.latitude_rounded = round(self.latitude, 2)
+        self.longitude_rounded = round(self.longitude, 2)
+        # if isinstance(self.status, str):
+        #     self.status = StationStatus(self.status)
 
 
-# class StationRepository(SQLAlchemyAsyncRepository[models.Stations]):
-#     model_type = models.Stations
-
-# async def provide_station_repo(db_session: AsyncSession) -> StationRepository:
-#     return StationRepository(session=db_session)
-
-# async def provide_station_deployments_repo(db_session: AsyncSession) -> StationRepository:
-#     return StationRepository(
-#         statement=select(models.Stations).options(selectinload(models.Stations.components))
-#     )
+class StationWriteDTO(MsgspecDTO[Station]):
+    config = DTOConfig(
+        exclude={"latitude", "longitude"},
+        rename_fields={
+            "latitude_rounded": "latitude",
+            "longitude_rounded": "longitude",
+        },
+    )

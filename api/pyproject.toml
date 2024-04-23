@@ -14,6 +14,7 @@ polars = "^0.20.21"
 psycopg = "^3.1.18"
 Pint = "^0.23"
 advanced-alchemy = "^0.9.0"
+uvicorn = "^0.29.0"
 
 
 [build-system]

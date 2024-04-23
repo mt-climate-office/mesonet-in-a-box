@@ -25,7 +25,9 @@ class Elements(Base):
     si_units: Mapped[str]
     us_units: Mapped[str]
     models: Mapped[List["ComponentModels"]] = relationship(
-        "ComponentModels", back_populates="elements"
+        "ComponentModels",
+        secondary="network.component_elements",
+        back_populates="elements",
     )
 
 
@@ -37,7 +39,7 @@ class ComponentModels(Base):
     manufacturer: Mapped[str]
     type: Mapped[str]
     elements: Mapped[List["Elements"]] = relationship(
-        "Elements", secondary="network.model_elements", back_populates="models"
+        "Elements", secondary="network.component_elements", back_populates="models"
     )
 
 
@@ -81,10 +83,8 @@ class Stations(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     elevation: Mapped[float]
-    components: Mapped[List["Deployments"]] = relationship(
-        "Deployments",
-        secondary="network.deployments",
-        back_populates="stations",
+    deployments: Mapped[List["Deployments"]] = relationship(
+        "Deployments", back_populates="station_relationship", uselist=True
     )
 
 
@@ -118,7 +118,6 @@ class Deployments(Base):
     station: Mapped[str] = mapped_column(
         ForeignKey("network.stations.station"),
         index=True,
-        nullable=False,
         primary_key=True,
     )
     model: Mapped[str] = mapped_column(index=True, nullable=False, primary_key=True)
@@ -130,8 +129,9 @@ class Deployments(Base):
         "Inventory", back_populates="deployments"
     )
     observations: Mapped[List["Observations"]] = relationship(
-        "Observation", back_populates="deployment_relationship"
+        "Observations", back_populates="deployment_relationship"
     )
+    station_relationship: Mapped["Stations"] = relationship("Stations")
 
 
 class Raw(Base):
@@ -164,5 +164,5 @@ class Observations(Base):
     value: Mapped[float]
     qc_flags: Mapped[int]
     deployment_relationship: Mapped["Deployments"] = relationship(
-        "Deployments", back_populates="observation"
+        "Deployments", back_populates="observations"
     )

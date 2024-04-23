@@ -1,3 +1,6 @@
+from advanced_alchemy.extensions.litestar.plugins.init.config.asyncio import (
+    autocommit_before_send_handler,
+)
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
 from sqlalchemy.exc import IntegrityError
@@ -5,9 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from litestar import Litestar
 from litestar.exceptions import ClientException
+from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig
 from litestar.status_codes import HTTP_409_CONFLICT
 from mesonet_utils import Config
 from db.models import Base
+from db import make_connection_string
+
 from dotenv import load_dotenv
 from typing import TYPE_CHECKING
 
@@ -65,15 +71,14 @@ async def provide_transaction(
         ) from exc
 
 
-# db_config = SQLAlchemyAsyncConfig(
-
-#     connection_string=make_connection_string(
-#         pg_username,
-#         pg_pw,
-#         "localhost",
-#         pg_db,
-#     ),
-#     metadata=Base.metadata,
-#     create_all=True,
-#     before_send_handler=autocommit_before_send_handler,
-# )
+db_config = SQLAlchemyAsyncConfig(
+    connection_string=make_connection_string(
+        pg_username,
+        pg_pw,
+        "localhost",
+        pg_db,
+    ),
+    metadata=Base.metadata,
+    create_all=True,
+    before_send_handler=autocommit_before_send_handler,
+)

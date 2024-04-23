@@ -1,5 +1,4 @@
 from mesonet_utils import Config  # type: ignore
-from pathlib import Path
 from sqlalchemy import URL, create_engine, text
 from sqlalchemy.engine.base import Engine
 import os
@@ -13,7 +12,7 @@ def make_connection_string(
     database: str,
 ) -> URL:
     return URL.create(
-        "postgresql+psycopg",
+        "postgresql+asyncpg",
         username=username,
         password=password,
         host=host,
@@ -44,7 +43,6 @@ if __name__ == "__main__":
         raise ValueError(
             "CONFIG directory cannot be None. Please rerun `mesonet configure`."
         )
-    schema: Path = CONFIG.directory / "at_schema.json"
 
     if CONFIG.env_file:
         load_dotenv(CONFIG.env_file)
