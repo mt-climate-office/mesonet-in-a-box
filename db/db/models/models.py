@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.orm import relationship
+from typing import Optional
 from sqlalchemy.dialects.postgresql import JSONB
 
 
@@ -83,8 +84,9 @@ class Stations(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     elevation: Mapped[float]
-    deployments: Mapped[List["Deployments"]] = relationship(
-        "Deployments", back_populates="station_relationship", uselist=True
+    deployments: Mapped[Optional[List["Deployments"]]] = relationship(
+        "Deployments",
+        back_populates="station_relationship",
     )
 
 
@@ -102,6 +104,7 @@ class Inventory(Base):
     )
 
 
+# TODO: look here: https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#relationship-patterns-nullable-m2o
 class Deployments(Base):
     __tablename__ = "deployments"
     __table_args__ = (
@@ -131,7 +134,9 @@ class Deployments(Base):
     observations: Mapped[List["Observations"]] = relationship(
         "Observations", back_populates="deployment_relationship"
     )
-    station_relationship: Mapped["Stations"] = relationship("Stations")
+    station_relationship: Mapped["Stations"] = relationship(
+        "Stations", back_populates="deployments"
+    )
 
 
 class Raw(Base):
