@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Any
-from sqlalchemy import ForeignKey, String, Identity, Date
+from sqlalchemy import ForeignKey, String, Identity, Date, Numeric
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -23,12 +23,14 @@ class Elements(Base):
     public: Mapped[bool]
     description: Mapped[str]
     description_short: Mapped[str]
-    si_units: Mapped[str]
-    us_units: Mapped[str]
+    si_units: Mapped[str] = mapped_column(String, nullable=True)
+    us_units: Mapped[str] = mapped_column(String, nullable=True)
+    attributes = mapped_column(JSONB, nullable=True)
     models: Mapped[List["ComponentModels"]] = relationship(
         "ComponentModels",
         secondary="network.component_elements",
         back_populates="elements",
+        uselist=True,
     )
 
 
@@ -81,7 +83,6 @@ class Stations(Base):
         ),
         nullable=False,
     )
-    # TODO: Figure out why a None station is violating null constraint.
     date_installed: Mapped[date | None] = mapped_column(Date, nullable=True)
     latitude: Mapped[float]
     longitude: Mapped[float]
@@ -99,13 +100,12 @@ class Inventory(Base):
         ForeignKey("network.component_models.model"), primary_key=True
     )
     serial_number: Mapped[str] = mapped_column(primary_key=True)
-    attributes = mapped_column(JSONB)
+    attributes = mapped_column(JSONB, nullable=True)
     deployments: Mapped[List["Deployments"]] = relationship(
         "Deployments", back_populates="inventory"
     )
 
 
-# TODO: look here: https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#relationship-patterns-nullable-m2o
 class Deployments(Base):
     __tablename__ = "deployments"
     __table_args__ = (
@@ -127,8 +127,8 @@ class Deployments(Base):
     model: Mapped[str] = mapped_column(index=True, nullable=False, primary_key=True)
     serial_number: Mapped[str] = mapped_column(nullable=False, primary_key=True)
     date_assigned: Mapped[date] = mapped_column(nullable=False, primary_key=True)
-    date_start: Mapped[date]
-    date_end: Mapped[date]
+    date_start: Mapped[date] = mapped_column(nullable=True)
+    date_end: Mapped[date] = mapped_column(Date, nullable=True)
     inventory: Mapped["Inventory"] = relationship(
         "Inventory", back_populates="deployments"
     )
@@ -168,7 +168,7 @@ class Observations(Base):
     )
     datetime: Mapped[datetime] = mapped_column(primary_key=True, index=True)
     value: Mapped[float]
-    qc_flags: Mapped[int]
+    qc_flags: Mapped[int] = mapped_column(Numeric, nullable=True)
     deployment_relationship: Mapped["Deployments"] = relationship(
         "Deployments", back_populates="observations"
     )

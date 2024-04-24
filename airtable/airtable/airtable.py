@@ -134,6 +134,7 @@ async def get_stations(
     return stations
 
 
+# TODO: Implement adjustment to return so that all fields not in db get put into the attributes dict
 async def get_elements(
     token: str,
     schema: Path,
