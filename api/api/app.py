@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import models
 from config import db_config, provide_transaction
 from msgspec import Struct
 from litestar import Litestar, Router, post
@@ -24,8 +23,8 @@ class Test(Struct):
 @post("/stations/")
 async def post_station(
     data: db_models.Stations, transaction: AsyncSession
-) -> models.Station:
-    # print(data)
+) -> db_models.Stations:
+    print(type(data))
     # db_models.Stations()
     transaction.add(data)
     return data

@@ -15,10 +15,6 @@ class StationStatus(Enum):
     inactive: str = "inactive"
 
 
-class Test(Struct):
-    status: StationStatus
-
-
 class Station(Struct):
     station: str
     name: str
@@ -27,6 +23,7 @@ class Station(Struct):
     latitude: float
     longitude: float
     elevation: float
+    deployments: list | None
     latitude_rounded: float | None = None
     longitude_rounded: float | None = None
 
@@ -37,6 +34,10 @@ class Station(Struct):
         #     self.status = StationStatus(self.status)
 
 
+class StationReadDTO(MsgspecDTO[Station]):
+    config = DTOConfig(exclude={"latitude_rounded", "longitude_rounded"})
+
+
 class StationWriteDTO(MsgspecDTO[Station]):
     config = DTOConfig(
         exclude={"latitude", "longitude"},
@@ -45,3 +46,7 @@ class StationWriteDTO(MsgspecDTO[Station]):
             "longitude_rounded": "longitude",
         },
     )
+
+
+class Test(Struct):
+    dt: date | None

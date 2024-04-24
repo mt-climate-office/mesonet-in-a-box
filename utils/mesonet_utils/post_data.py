@@ -14,11 +14,13 @@ token = CONFIG.airtable_token
 async def post_stations(token: str, schema: Path) -> dict[str, Any]:
     stations = await get_stations(token=token, schema=schema, as_json=True)
     async with httpx.AsyncClient() as client:
-        for station in stations:
-            print(station)
-            r = await client.post("http://127.0.0.1:8000/stations", json=station)
-            print(r.text)
-            print(r)
+        # for station in stations:
+        station = stations[0]
+        station["deployments"] = []
+        print(station)
+        r = await client.post("http://127.0.0.1:8000/stations", json=station)
+        print(r.text)
+        print(r)
     return stations
 
 

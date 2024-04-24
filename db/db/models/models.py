@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Any
-from sqlalchemy import ForeignKey, String, Identity
+from sqlalchemy import ForeignKey, String, Identity, Date
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -73,20 +73,21 @@ class Stations(Base):
     )
 
     station: Mapped[str] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(
         String,
         CheckConstraint(
             "status IN ('pending', 'active', 'decommissioned', 'inactive')"
         ),
+        nullable=False,
     )
-    date_installed: Mapped[date]
+    # TODO: Figure out why a None station is violating null constraint.
+    date_installed: Mapped[date | None] = mapped_column(Date, nullable=True)
     latitude: Mapped[float]
     longitude: Mapped[float]
     elevation: Mapped[float]
     deployments: Mapped[Optional[List["Deployments"]]] = relationship(
-        "Deployments",
-        back_populates="station_relationship",
+        "Deployments", back_populates="station_relationship", uselist=True
     )
 
 
