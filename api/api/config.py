@@ -72,11 +72,13 @@ async def provide_transaction(
 
 
 db_config = SQLAlchemyAsyncConfig(
-    connection_string=make_connection_string(
-        pg_username,
-        pg_pw,
-        "localhost",
-        pg_db,
+    connection_string=str(
+        make_connection_string(
+            pg_username,
+            pg_pw,
+            "localhost",
+            pg_db,
+        )
     ),
     metadata=Base.metadata,
     create_all=True,

@@ -20,12 +20,11 @@ class Elements(Base):
     __table_args__ = ({"schema": "network"},)
 
     element: Mapped[str] = mapped_column(String, primary_key=True)
-    public: Mapped[bool]
     description: Mapped[str]
     description_short: Mapped[str]
     si_units: Mapped[str] = mapped_column(String, nullable=True)
     us_units: Mapped[str] = mapped_column(String, nullable=True)
-    attributes = mapped_column(JSONB, nullable=True)
+    extra_data = mapped_column(JSONB, nullable=True)
     models: Mapped[List["ComponentModels"]] = relationship(
         "ComponentModels",
         secondary="network.component_elements",
@@ -87,8 +86,41 @@ class Stations(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     elevation: Mapped[float]
+    request_schemas: Mapped["RequestSchemas"] = relationship(
+        "RequestSchemas",
+        secondary="network.station_request_schemas",
+        back_populates="stations",
+    )
     deployments: Mapped[Optional[List["Deployments"]]] = relationship(
         "Deployments", back_populates="station_relationship", uselist=True
+    )
+
+
+class StationRequestSchemas(Base):
+    __tablename__ = "station_request_schemas"
+    __table_args__ = {"schema": "network"}
+
+    network: Mapped[str] = mapped_column(
+        String, ForeignKey("network.request_schemas.network"), primary_key=True
+    )
+    station: Mapped[str] = mapped_column(
+        String, ForeignKey("network.stations.station"), primary_key=True
+    )
+    date_start: Mapped[date] = mapped_column(Date, primary_key=True)
+    date_end: Mapped[date | None]
+    report_interval: Mapped[int]
+
+
+class RequestSchemas(Base):
+    __tablename__ = "request_schemas"
+    __table_args__ = {"schema": "network"}
+
+    network: Mapped[str] = mapped_column(String, primary_key=True)
+    request_model: Mapped[JSONB]
+    stations: Mapped[Optional[List["Stations"]]] = relationship(
+        "Stations",
+        secondary="network.station_request_schemas",
+        back_populates="request_schemas",
     )
 
 
@@ -100,7 +132,7 @@ class Inventory(Base):
         ForeignKey("network.component_models.model"), primary_key=True
     )
     serial_number: Mapped[str] = mapped_column(primary_key=True)
-    attributes = mapped_column(JSONB, nullable=True)
+    extra_data = mapped_column(JSONB, nullable=True)
     deployments: Mapped[List["Deployments"]] = relationship(
         "Deployments", back_populates="inventory"
     )

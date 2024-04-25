@@ -104,31 +104,52 @@ def unlist_len1_list_columns(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def additional_columns_to_struct(
+    df: pl.DataFrame, req_columns: list[str], additional_fields: list[str] | None = None
+) -> pl.DataFrame:
+    additional = list(set(df.columns) - set(req_columns))
+    if additional_fields is not None:
+        additional = [x for x in additional if x in additional_fields]
+    df = df.with_columns(extra_data=pl.struct(additional))[req_columns + ["extra_data"]]
+
+    return df
+
+
+REQ_STATION_FIELDS = [
+    "station",
+    "name",
+    "status",
+    "date_installed",
+    "latitude",
+    "longitude",
+    "elevation",
+]
+
+
 async def get_stations(
     token: str,
     schema: Path,
+    additional_fields: list[str] | None = None,
     as_json: bool = False,
-) -> pl.DataFrame | dict[str, Any]:
+) -> pl.DataFrame | list[dict[str, Any]]:
+    if additional_fields is not None:
+        fields = REQ_STATION_FIELDS + additional_fields
+    else:
+        fields = None
     stations = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
         table="stations",
-        fields=[
-            "name",
-            "station",
-            "status",
-            "date_installed",
-            "nwsli_id",
-            "sub_network",
-            "latitude",
-            "longitude",
-            "report_mco",
-            "report_mesowest",
-            "elevation",
-            "ace_grid",
-        ],
+        fields=fields,
     )
     stations = unlist_len1_list_columns(stations)
+    stations = additional_columns_to_struct(
+        stations, REQ_STATION_FIELDS, additional_fields
+    )
+
+    assert all(
+        x in stations.columns for x in REQ_STATION_FIELDS
+    ), f"All the following fields must be present in your stations table. Please check that they are present in AirTable: {REQ_STATION_FIELDS}"
     if as_json:
         return stations.to_dicts()
     return stations
@@ -139,7 +160,7 @@ async def get_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame | dict[str, Any]:
+) -> pl.DataFrame | list[dict[str, Any]]:
     elements = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -160,9 +181,9 @@ async def get_elements(
     elements = unlist_len1_list_columns(elements)
 
     elements = elements.with_columns(
-        pl.col("element").str.replace("_\{elevation_cm\}", ""),
-        pl.col("description_short").str.replace("@ \{elevation_cm\}", ""),
-        pl.col("description").str.replace("at \{elevation_cm\}", ""),
+        pl.col("element").str.replace(r"_{elevation_cm}", ""),
+        pl.col("description_short").str.replace(r"@ {elevation_cm}", ""),
+        pl.col("description").str.replace(r"at {elevation_cm}", ""),
     )
     if as_json:
         return elements.to_dicts()
@@ -173,7 +194,7 @@ async def get_deployments(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame | dict[str, Any]:
+) -> pl.DataFrame | list[dict[str, Any]]:
     deployments = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
@@ -203,7 +224,7 @@ async def get_model_elements(
     token: str,
     schema: Path,
     as_json: bool = False,
-) -> pl.DataFrame | dict[str, Any]:
+) -> pl.DataFrame | list[dict[str, Any]]:
     model_elements = await get_airtable_records(
         schema=load_airtable_schema(schema),
         token=token,
