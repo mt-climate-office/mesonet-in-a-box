@@ -22,10 +22,10 @@ class Elements(Base):
     element: Mapped[str] = mapped_column(String, primary_key=True)
     description: Mapped[str]
     description_short: Mapped[str]
-    si_units: Mapped[str] = mapped_column(String, nullable=True)
-    us_units: Mapped[str] = mapped_column(String, nullable=True)
+    si_units: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    us_units: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     extra_data = mapped_column(JSONB, nullable=True)
-    models: Mapped[List["ComponentModels"]] = relationship(
+    models: Mapped[Optional[List["ComponentModels"]]] = relationship(
         "ComponentModels",
         secondary="network.component_elements",
         back_populates="elements",
@@ -40,8 +40,11 @@ class ComponentModels(Base):
     model: Mapped[str] = mapped_column(primary_key=True)
     manufacturer: Mapped[str]
     type: Mapped[str]
-    elements: Mapped[List["Elements"]] = relationship(
-        "Elements", secondary="network.component_elements", back_populates="models"
+    elements: Mapped[Optional[List["Elements"]]] = relationship(
+        "Elements",
+        secondary="network.component_elements",
+        back_populates="models",
+        uselist=True,
     )
 
 
@@ -86,13 +89,45 @@ class Stations(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     elevation: Mapped[float]
-    request_schemas: Mapped["RequestSchemas"] = relationship(
+    request_schemas: Mapped[Optional[List["RequestSchemas"]]] = relationship(
         "RequestSchemas",
         secondary="network.station_request_schemas",
         back_populates="stations",
+        uselist=True,
+    )
+    response_schemas: Mapped[List["ResponseSchemas"]] = relationship(
+        "ResponseSchemas",
+        secondary="network.station_response_schemas",
+        back_populates="stations",
+        uselist=True,
     )
     deployments: Mapped[Optional[List["Deployments"]]] = relationship(
         "Deployments", back_populates="station_relationship", uselist=True
+    )
+
+
+class ResponseSchemas(Base):
+    __tablename__ = "response_schemas"
+    __table_args__ = {"schema": "network"}
+
+    response_name: Mapped[str] = mapped_column(String, primary_key=True)
+    response_model = mapped_column(JSONB)
+    stations: Mapped[List["Stations"]] = relationship(
+        "Stations",
+        secondary="network.station_response_schemas",
+        back_populates="response_schemas",
+    )
+
+
+class StationResponseSchemas(Base):
+    __tablename__ = "station_response_schemas"
+    __table_args__ = {"schema": "network"}
+
+    station: Mapped[str] = mapped_column(
+        String, ForeignKey("network.stations.station"), primary_key=True
+    )
+    response_name: Mapped[str] = mapped_column(
+        String, ForeignKey("network.response_schemas.response_name"), primary_key=True
     )
 
 
@@ -116,7 +151,7 @@ class RequestSchemas(Base):
     __table_args__ = {"schema": "network"}
 
     network: Mapped[str] = mapped_column(String, primary_key=True)
-    request_model: Mapped[JSONB]
+    request_model = mapped_column(JSONB)
     stations: Mapped[Optional[List["Stations"]]] = relationship(
         "Stations",
         secondary="network.station_request_schemas",

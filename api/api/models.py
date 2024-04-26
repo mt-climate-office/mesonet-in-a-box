@@ -34,11 +34,10 @@ class Station(Struct):
         #     self.status = StationStatus(self.status)
 
 
+class StationDTO(MsgspecDTO[Station]): ...
+
+
 class StationReadDTO(MsgspecDTO[Station]):
-    config = DTOConfig(exclude={"latitude_rounded", "longitude_rounded"})
-
-
-class StationWriteDTO(MsgspecDTO[Station]):
     config = DTOConfig(
         exclude={"latitude", "longitude"},
         rename_fields={

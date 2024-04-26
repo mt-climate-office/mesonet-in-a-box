@@ -181,9 +181,9 @@ async def get_elements(
     elements = unlist_len1_list_columns(elements)
 
     elements = elements.with_columns(
-        pl.col("element").str.replace(r"_{elevation_cm}", ""),
-        pl.col("description_short").str.replace(r"@ {elevation_cm}", ""),
-        pl.col("description").str.replace(r"at {elevation_cm}", ""),
+        pl.col("element").str.replace("_{elevation_cm}", "", literal=True),
+        pl.col("description_short").str.replace("@ {elevation_cm}", "", literal=True),
+        pl.col("description").str.replace("at {elevation_cm}", "", literal=True),
     )
     if as_json:
         return elements.to_dicts()
@@ -246,7 +246,7 @@ async def get_model_elements(
 
     model_elements = unlist_len1_list_columns(model_elements)
     model_elements = model_elements.with_columns(
-        pl.col("element").str.replace("_\{elevation_cm\}", ""),
+        pl.col("element").str.replace("_{elevation_cm}", "", literal=True),
     )
     if as_json:
         return model_elements.to_dicts()

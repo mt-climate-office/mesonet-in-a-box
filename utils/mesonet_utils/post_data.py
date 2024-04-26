@@ -13,19 +13,20 @@ async def post_stations(token: str, schema: Path) -> None:
     stations = await get_stations(token=token, schema=schema, as_json=True)
     async with httpx.AsyncClient() as client:
         for station in stations:
-            # station["deployments"] = []
-            r = await client.post("http://127.0.0.1:8000/stations", json=station)
-            print(r.text)
+            station["deployments"] = []
+            station["request_schemas"] = []
+            station["response_schemas"] = []
+            response = await client.post("http://127.0.0.1:8000/stations", json=station)
+            print(response.text)
 
 
 async def post_elements(token: str, schema: Path) -> None:
     elements = await get_elements(token=token, schema=schema, as_json=True)
     async with httpx.AsyncClient() as client:
         for element in elements:
-            print(element)
-            r = await client.post("http://127.0.0.1:8000/elements", json=element)
-            print(r.text)
-            break
+            element["models"] = []
+            response = await client.post("http://127.0.0.1:8000/elements", json=element)
+            print(response.text)
 
 
 if __name__ == "__main__":
@@ -33,5 +34,5 @@ if __name__ == "__main__":
     schema: Path = CONFIG.directory / "at_schema.json"
     token = CONFIG.airtable_token
 
-    asyncio.run(post_elements(token, schema))
-    # asyncio.run(post_stations(token, schema))
+    # asyncio.run(post_elements(token, schema))
+    asyncio.run(post_stations(token, schema))
