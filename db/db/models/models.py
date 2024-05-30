@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Any
-from sqlalchemy import ForeignKey, String, Identity, Date, Numeric
+from sqlalchemy import ForeignKey, String, Identity, Date, BigInteger
 from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
@@ -235,7 +235,7 @@ class Observations(Base):
     )
     datetime: Mapped[datetime] = mapped_column(primary_key=True, index=True)
     value: Mapped[float]
-    qc_flags: Mapped[int] = mapped_column(Numeric, nullable=True)
+    qc_flags: Mapped[int] = mapped_column(BigInteger, nullable=True)
     deployment_relationship: Mapped["Deployments"] = relationship(
         "Deployments", back_populates="observations"
     )

@@ -8,6 +8,8 @@ from airtable import (
     get_elements,
 )  # , get_deployments, get_model_elements, get_elements
 
+API_URL = "http://127.0.0.1:8000"
+
 
 async def post_stations(token: str, schema: Path) -> None:
     stations = await get_stations(token=token, schema=schema, as_json=True)
@@ -16,7 +18,7 @@ async def post_stations(token: str, schema: Path) -> None:
             station["deployments"] = []
             station["request_schemas"] = []
             station["response_schemas"] = []
-            response = await client.post("http://127.0.0.1:8000/stations", json=station)
+            response = await client.post(f"{API_URL}/stations", json=station)
             print(response.text)
 
 
@@ -25,7 +27,7 @@ async def post_elements(token: str, schema: Path) -> None:
     async with httpx.AsyncClient() as client:
         for element in elements:
             element["models"] = []
-            response = await client.post("http://127.0.0.1:8000/elements", json=element)
+            response = await client.post(f"{API_URL}/elements", json=element)
             print(response.text)
 
 
