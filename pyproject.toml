@@ -1,0 +1,24 @@
+[project]
+name = "mesonet-in-a-box"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mbx-db",
+    "mbx-inventory",
+]
+
+[project.scripts]
+hello = "mesonet_in_a_box:hello"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.workspace]
+members = ["mbx-db", "mbx-inventory"]
+
+[tool.uv.sources]
+mbx-inventory = { workspace = true }
+mbx-db = { workspace = true }
