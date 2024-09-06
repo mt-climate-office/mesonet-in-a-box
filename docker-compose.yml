@@ -1,12 +1,30 @@
 version: '3.9'
 
 services:
+    nocodb:
+        container_name: nocodb
+        depends_on: 
+            db: 
+                condition: service_healthy
+        environment: 
+            NC_DB: "pg://db:5432?u=${POSTGRES_USER}&p=${POSTGRES_PASSWORD}&d=nocodb"
+        image: "nocodb/nocodb:latest"
+        ports: 
+            - "8080:8080"
+        networks:
+            - web
+        restart: always
+        volumes: 
+            - "nc-data:/usr/app/data"
     db:
         platform: linux/amd64
         container_name: db
         restart: always
-        healthcheck:
-            test: "exit 0"
+        healthcheck: 
+            interval: 10s
+            retries: 10
+            test: "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""
+            timeout: 2s
         image: timescale/timescaledb-ha:pg16
         ports: 
             - "5432:5432"
@@ -16,16 +34,12 @@ services:
             - db-data:/var/lib/postgresql/data      
         env_file:
             - .env
-    # airflow:
-    #     container_name: airflow
-    #     image: apache/airflow:latest-python3.11
-    #     ports:
-    #         - "8080:8080"
-        
+
 
 networks:
     web:
         external: true
 
 volumes: 
-    db-data: 
+    db-data: {}
+    nc-data: {}
