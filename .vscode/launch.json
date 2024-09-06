@@ -5,13 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: LiteStar",
+            "name": "Debug MBX Main",
             "type": "debugpy",
             "request": "launch",
-            "module": "litestar",
-            "justMyCode": false,
-            "cwd": "${workspaceFolder}/api/api",
-            "args": ["run", "--debug", "--reload"],
+            "module": "mesonet_in_a_box.main",
+            "justMyCode": false
         },
         {
             "name": "Python Debugger: Current File",

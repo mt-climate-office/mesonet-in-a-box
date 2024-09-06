@@ -5,12 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "ipykernel>=6.29.5",
+    "keyring>=25.3.0",
     "mbx-db",
     "mbx-inventory",
+    "pytest>=8.3.2",
+    "typer>=0.12.5",
 ]
 
 [project.scripts]
-hello = "mesonet_in_a_box:hello"
+mbx = "mesonet_in_a_box.main:app"
 
 [build-system]
 requires = ["hatchling"]
