@@ -9,6 +9,8 @@ dependencies = [
     "keyring>=25.3.0",
     "mbx-db",
     "mbx-inventory",
+    "polars>=1.6.0",
+    "pyairtable>=2.3.3",
     "pytest>=8.3.2",
     "typer>=0.12.5",
 ]

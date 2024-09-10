@@ -6,11 +6,41 @@ import typer
 from dotenv import load_dotenv
 import os
 import keyring
+from typing import Optional
+import httpx
+from pathlib import Path
 
 load_dotenv()
 CONFIG = Config.load(Config.file)
 
-app = typer.Typer(rich_markup_mode="rich")
+
+def callback(
+    check: Optional[bool] = typer.Option(
+        True,
+        "--check/--no-check",
+        help="Should your NocoDB token be checked before running a command?",
+    ),
+):
+    """
+    Command line interface for all Mesonet-in-a-Box utilities.
+    [bold]Note:[/bold] You must have a NocoDB access toekn to use this application.
+    The token should be stored in a .env file or as an environment variable called `NOCODB_TOKEN`.
+    """
+
+    if check:
+        typer.echo("Checking that NocoDB key works...\n")
+        try:
+            create.get_nocodb_bases(
+                api_key=CONFIG.nocodb_key, nocodb_url=CONFIG.nocodb_url
+            )
+        except httpx.RequestError:
+            typer.echo(
+                f"Unable to access NocoDB at {CONFIG.nocodb_url}. Please rerun `mbx --no-check configure`."
+            )
+            raise typer.Abort()
+
+
+app = typer.Typer(rich_markup_mode="rich", callback=callback)
 
 
 @app.command()
@@ -44,7 +74,7 @@ def configure():
         typer.echo(
             f"Not able to communicate with NocoDB using provided token at {nocodb_host}. Terminating configuration."
         )
-        typer.Abort()
+        raise typer.Abort()
 
     keyring.set_password("mbx", "nocodb_key", nocodb_key)
 
@@ -93,8 +123,32 @@ def init_nocodb(
         nocodb_url=CONFIG.nocodb_url,
     )
 
-    base_schema = BaseSchema(tables)
+    base_schema = BaseSchema(base_id, tables)
+
     base_schema.match_relationship_column_ids()
-    base_schema = create.populate_table_relationships(
-        base_schema=base_schema, api_key=CONFIG.nocodb_key, nocodb_url=CONFIG.nocodb_url
+    base_schema = create.populate_relationships_lookups_formulas(
+        column_type="relationships",
+        base_schema=base_schema,
+        api_key=CONFIG.nocodb_key,
+        nocodb_url=CONFIG.nocodb_url,
     )
+
+    base_schema.match_lookup_column_ids()
+    base_schema = create.populate_relationships_lookups_formulas(
+        column_type="lookups",
+        base_schema=base_schema,
+        api_key=CONFIG.nocodb_key,
+        nocodb_url=CONFIG.nocodb_url,
+    )
+    base_schema = create.populate_relationships_lookups_formulas(
+        column_type="formulas",
+        base_schema=base_schema,
+        api_key=CONFIG.nocodb_key,
+        nocodb_url=CONFIG.nocodb_url,
+    )
+
+    create.create_primary_columns(base_schema=base_schema)
+    base_schema.save(Path(CONFIG.directory) / f"{base_schema.base_id}.json")
+
+
+init_nocodb("Mesonet")

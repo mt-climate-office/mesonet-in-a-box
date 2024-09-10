@@ -16,7 +16,7 @@ class KeyNotFoundError(Exception): ...
 class Config:
     directory: Path = Path.home() / ".config" / "mbx"
     file: Path = Path.home() / ".config" / "mbx/config.json"
-    nocodb_key: Optional[str] = None
+    nocodb_key: Optional[str] = ""
     nocodb_url: Optional[str] = "http://localhost:8080"
 
     def __post_init__(self):
