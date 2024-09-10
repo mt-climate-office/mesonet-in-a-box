@@ -1,6 +1,8 @@
 [submodule "mbx-inventory"]
 	path = mbx-inventory
 	url = https://github.com/mt-climate-office/mbx-inventory.git
+	branch = main
 [submodule "mbx-db"]
 	path = mbx-db
 	url = https://github.com/mt-climate-office/mbx-db.git
+	branch = main
