@@ -123,28 +123,27 @@ def init_nocodb(
         nocodb_url=CONFIG.nocodb_url,
     )
 
-    base_schema = BaseSchema(base_id, tables)
+    base_schema = BaseSchema(
+        base_id, 
+        tables,
+        nocodb_url=CONFIG.nocodb_url,
+        nocodb_token=CONFIG.nocodb_key,
+    )
 
     base_schema.match_relationship_column_ids()
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="relationships",
         base_schema=base_schema,
-        api_key=CONFIG.nocodb_key,
-        nocodb_url=CONFIG.nocodb_url,
     )
 
     base_schema.match_lookup_column_ids()
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="lookups",
         base_schema=base_schema,
-        api_key=CONFIG.nocodb_key,
-        nocodb_url=CONFIG.nocodb_url,
     )
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="formulas",
         base_schema=base_schema,
-        api_key=CONFIG.nocodb_key,
-        nocodb_url=CONFIG.nocodb_url,
     )
 
     create.create_primary_columns(base_schema=base_schema)
