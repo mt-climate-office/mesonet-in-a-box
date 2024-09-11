@@ -124,7 +124,7 @@ def init_nocodb(
     )
 
     base_schema = BaseSchema(
-        base_id, 
+        base_id,
         tables,
         nocodb_url=CONFIG.nocodb_url,
         nocodb_token=CONFIG.nocodb_key,
