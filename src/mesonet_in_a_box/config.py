@@ -16,7 +16,7 @@ class KeyNotFoundError(Exception): ...
 class Config:
     directory: Path = Path.home() / ".config" / "mbx"
     file: Path = Path.home() / ".config" / "mbx/config.json"
-    nocodb_key: Optional[str] = ""
+    nocodb_token: Optional[str] = ""
     nocodb_url: Optional[str] = "http://localhost:8080"
 
     def __post_init__(self):
@@ -71,9 +71,9 @@ class Config:
         except (TypeError, FileNotFoundError):
             data = {}
 
-        nocodb_key = keyring.get_password("mbx", "nocodb_key")
+        nocodb_token = keyring.get_password("mbx", "nocodb_token")
 
-        if nocodb_key:
-            data.update({"nocodb_key": nocodb_key})
+        if nocodb_token:
+            data.update({"nocodb_token": nocodb_token})
 
         return cls(**data)

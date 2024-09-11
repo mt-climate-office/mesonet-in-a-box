@@ -31,7 +31,7 @@ def callback(
         typer.echo("Checking that NocoDB key works...\n")
         try:
             create.get_nocodb_bases(
-                api_key=CONFIG.nocodb_key, nocodb_url=CONFIG.nocodb_url
+                nocodb_token=CONFIG.nocodb_token, nocodb_url=CONFIG.nocodb_url
             )
         except httpx.RequestError:
             typer.echo(
@@ -49,9 +49,9 @@ def configure():
     Please run this command before running any other `mbx` commands.
     """
     CONFIG.create()
-    nocodb_key = os.getenv("NOCODB_TOKEN")
-    if not nocodb_key:
-        nocodb_key = typer.prompt(
+    nocodb_token = os.getenv("NOCODB_TOKEN")
+    if not nocodb_token:
+        nocodb_token = typer.prompt(
             "No environment variable called 'NOCODB_TOKEN' was found. Please provide your NocoDB read/write token"
         )
 
@@ -67,7 +67,7 @@ def configure():
         CONFIG.nocodb_url = nocodb_host
 
     key_works = create.get_nocodb_bases(
-        api_key=nocodb_key, nocodb_url=CONFIG.nocodb_url
+        nocodb_token=nocodb_token, nocodb_url=CONFIG.nocodb_url
     )
 
     if not key_works:
@@ -76,7 +76,7 @@ def configure():
         )
         raise typer.Abort()
 
-    keyring.set_password("mbx", "nocodb_key", nocodb_key)
+    keyring.set_password("mbx", "nocodb_token", nocodb_token)
 
     CONFIG.write()
     typer.echo(f"Your config file has been written to {CONFIG.file.expanduser()}.")
@@ -92,7 +92,7 @@ def init_nocodb(
     """Initialize NocoDB mesonet dashboard with all necessary tables and relationships."""
 
     existing_bases = create.get_nocodb_bases(
-        api_key=CONFIG.nocodb_key,
+        nocodb_token=CONFIG.nocodb_token,
         nocodb_url=CONFIG.nocodb_url,
     )
 
@@ -111,7 +111,7 @@ def init_nocodb(
                 ), "New base name is still equal to existing name."
 
     base_id = create.create_mesonet_base(
-        api_key=CONFIG.nocodb_key,
+        nocodb_token=CONFIG.nocodb_token,
         nocodb_url=CONFIG.nocodb_url,
         db_base_name=base_name,
     )
@@ -119,7 +119,7 @@ def init_nocodb(
     tables = create.create_base_tables(
         tables=TABLES,
         base_id=base_id,
-        api_key=CONFIG.nocodb_key,
+        nocodb_token=CONFIG.nocodb_token,
         nocodb_url=CONFIG.nocodb_url,
     )
 
@@ -127,27 +127,35 @@ def init_nocodb(
         base_id,
         tables,
         nocodb_url=CONFIG.nocodb_url,
-        nocodb_token=CONFIG.nocodb_key,
+        nocodb_token=CONFIG.nocodb_token,
     )
 
     base_schema.match_relationship_column_ids()
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="relationships",
         base_schema=base_schema,
+        nocodb_token=CONFIG.nocodb_token,
+        nocodb_url=CONFIG.nocodb_url
     )
 
     base_schema.match_lookup_column_ids()
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="lookups",
         base_schema=base_schema,
+        nocodb_token=CONFIG.nocodb_token,
+        nocodb_url=CONFIG.nocodb_url
     )
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="formulas",
         base_schema=base_schema,
+        nocodb_token=CONFIG.nocodb_token,
+        nocodb_url=CONFIG.nocodb_url
     )
 
-    create.create_primary_columns(base_schema=base_schema)
+    create.create_primary_columns(
+        base_schema=base_schema,
+        nocodb_token=CONFIG.nocodb_token,
+        nocodb_url=CONFIG.nocodb_url
+    )
+
     base_schema.save(Path(CONFIG.directory) / f"{base_schema.base_id}.json")
-
-
-init_nocodb("Mesonet")
