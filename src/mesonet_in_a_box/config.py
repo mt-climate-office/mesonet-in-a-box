@@ -15,7 +15,7 @@ class KeyNotFoundError(Exception): ...
 @dataclass
 class Config:
     directory: Path = Path.home() / ".config" / "mbx"
-    file: Path = Path.home() / ".config" / "mbx/config.json"
+    file: Path = directory / "config.json"
     nocodb_token: Optional[str] = ""
     nocodb_url: Optional[str] = "http://localhost:8080"
 

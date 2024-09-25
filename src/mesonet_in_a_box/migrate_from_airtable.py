@@ -1,15 +1,8 @@
-import polars as pl
+from mbx_inventory.schemas import BaseSchema
+from pathlib import Path
+
+base_schema = BaseSchema.load(Path("/home/cbrust/.config/mbx/p6qk9g7kprqubv6.json"))
 
 
-def get_airtable_records(
-    base: str, table: str, columns: str | None = None
-) -> pl.DataFrame:
-    if columns is None:
-        columns = []
-    url = f"https://api.airtable.com/v0/{base}/{table}"
-    params = {
-        "fields[]": columns,
-    }
-    header = {"Authorization": "Bearer TOKEN"}
-
-    return url, params, header
+def fix_stations_table(base_schema):
+    stations = base_schema["Stations"]

@@ -135,7 +135,7 @@ def init_nocodb(
         column_type="relationships",
         base_schema=base_schema,
         nocodb_token=CONFIG.nocodb_token,
-        nocodb_url=CONFIG.nocodb_url
+        nocodb_url=CONFIG.nocodb_url,
     )
 
     base_schema.match_lookup_column_ids()
@@ -143,19 +143,49 @@ def init_nocodb(
         column_type="lookups",
         base_schema=base_schema,
         nocodb_token=CONFIG.nocodb_token,
-        nocodb_url=CONFIG.nocodb_url
+        nocodb_url=CONFIG.nocodb_url,
     )
     base_schema = create.populate_relationships_lookups_formulas(
         column_type="formulas",
         base_schema=base_schema,
         nocodb_token=CONFIG.nocodb_token,
-        nocodb_url=CONFIG.nocodb_url
+        nocodb_url=CONFIG.nocodb_url,
     )
 
     create.create_primary_columns(
         base_schema=base_schema,
         nocodb_token=CONFIG.nocodb_token,
-        nocodb_url=CONFIG.nocodb_url
+        nocodb_url=CONFIG.nocodb_url,
     )
 
     base_schema.save(Path(CONFIG.directory) / f"{base_schema.base_id}.json")
+
+
+@app.command()
+def create_schema_from_existing():
+    bases = create.list_bases(
+        nocodb_token=CONFIG.nocodb_token, nocodb_url=CONFIG.nocodb_url
+    )
+
+    options = [x["title"] for x in bases["list"]]
+    options = [f"{idx}: {x}" for idx, x in enumerate(options)]
+    choice = typer.prompt(
+        f"Please choose one of the following bases to build schema for:\n{'\n'.join(options)}\n",
+        type=int,
+        prompt_suffix="",
+    )
+
+    assert choice in range(
+        len(options)
+    ), f"Your choice must be in {range(len(options))}. Please try again."
+
+    base_id = bases["list"][choice]["id"]
+    tables = create.create_tables_from_base(
+        base_id, nocodb_token=CONFIG.nocodb_token, nocodb_url=CONFIG.nocodb_url
+    )
+
+    base_schema = BaseSchema(base_id, tables)
+    out_path = Path(CONFIG.directory) / f"{base_schema.base_id}.json"
+    base_schema.save(out_path)
+
+    typer.echo(f"Base shema has been saved to {out_path}")
