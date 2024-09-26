@@ -1,5 +1,6 @@
 from mbx_inventory import create_db_schema as create
 from mbx_inventory.schemas import TABLES, BaseSchema
+from mbx_inventory.at_migration import nc
 from .config import Config
 
 import typer
@@ -7,6 +8,7 @@ from dotenv import load_dotenv
 import os
 import keyring
 from typing import Optional
+from typing_extensions import Annotated
 import httpx
 from pathlib import Path
 
@@ -189,3 +191,9 @@ def create_schema_from_existing():
     base_schema.save(out_path)
 
     typer.echo(f"Base shema has been saved to {out_path}")
+
+
+@app.command()
+def clean_nc_tables(pth: Annotated[Path, typer.Argument()]):
+    base_schema = BaseSchema.load(pth)
+    nc.fix_stations_table(base_schema=base_schema)
