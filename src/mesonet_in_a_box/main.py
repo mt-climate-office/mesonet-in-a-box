@@ -127,9 +127,7 @@ def init_nocodb(
 
     base_schema = BaseSchema(
         base_id,
-        tables,
-        nocodb_url=CONFIG.nocodb_url,
-        nocodb_token=CONFIG.nocodb_token,
+        tables
     )
 
     base_schema.match_relationship_column_ids()
