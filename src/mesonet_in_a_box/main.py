@@ -197,3 +197,6 @@ def create_schema_from_existing():
 def clean_nc_tables(pth: Annotated[Path, typer.Argument()]):
     base_schema = BaseSchema.load(pth)
     nc.fix_stations_table(base_schema=base_schema)
+
+
+# configure()
