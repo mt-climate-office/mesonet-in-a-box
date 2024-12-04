@@ -6,3 +6,6 @@
 	path = mbx-db
 	url = https://github.com/mt-climate-office/mbx-db.git
 	branch = main
+[submodule "mbx-networks"]
+	path = mbx-networks
+	url = https://github.com/mt-climate-office/mbx-networks.git
