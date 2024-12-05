@@ -43,6 +43,8 @@ services:
             - ln-data:/var/opt/CampbellSci/LoggerNet/data
             - ${LN_LINUX}:/var/opt/
             - ${CR1COMP_EXE}:/var/opt
+        environment:
+            - LN_LINUX=${LN_LINUX}
 
 
 networks:
