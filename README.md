@@ -29,4 +29,4 @@ git submodule update --init --remote --recursive
     - Paste in the url generated above and your API key. Uncheck `Import Secondary Views`.
     - Click `Import`.
 6. Run `uv run mbx create-schema-from-existing` and select the "Montana Mesonet" base when prompted. This will print out a file path. Copy this path for the next step.
-7. Run `uv run mbx clean-nc-tables the/path/you/copied.json`. This command re-creates old formulas, sets primary column values, and rolls all columns that aren't used in mesonet-in-a-box into a JSON column so that information is maintained.
+7. Run `uv run mbx clean-nc-tables the/path/you/copied.json`. This command re-creates old formulas, sets primary column values, and rolls all columns that aren't used in mesonet-in-a-box into a JSON column so that information is maintained.    

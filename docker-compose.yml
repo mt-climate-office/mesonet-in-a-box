@@ -32,6 +32,17 @@ services:
             - db-data:/var/lib/postgresql/data      
         env_file:
             - .env
+    
+    loggernet:
+        container_name: loggernet
+        build: ./mbx-networks/loggernet
+        restart: always
+        ports:
+            - 6789:6789
+        volumes:
+            - ln-data:/var/opt/CampbellSci/LoggerNet/data
+            - ${LN_LINUX}:/var/opt/
+            - ${CR1COMP_EXE}:/var/opt
 
 
 networks:
@@ -41,3 +52,4 @@ networks:
 volumes: 
     db-data: {}
     nc-data: {}
+    ln-data: {}
