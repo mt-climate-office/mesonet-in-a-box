@@ -41,9 +41,9 @@ services:
             - 6789:6789
         volumes:
             - ln-data:/var/opt/CampbellSci/LoggerNet/data
+            - ${LN_SOFTWARE}:/opt/ln
         environment:
             - LN_VERSION=${LN_VERSION}
-            - LN_SOFTWARE=${LN_SOFTWARE}
 
 
 networks:
