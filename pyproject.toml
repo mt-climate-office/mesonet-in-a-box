@@ -9,6 +9,7 @@ dependencies = [
     "keyring>=25.3.0",
     "mbx-db",
     "mbx-inventory",
+    "mbx-networks",
     "polars>=1.6.0",
     "pyairtable>=2.3.3",
     "pytest>=8.3.2",
@@ -23,8 +24,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.workspace]
-members = ["mbx-db", "mbx-inventory"]
+members = ["mbx-db", "mbx-inventory", "mbx-networks"]
 
 [tool.uv.sources]
 mbx-inventory = { workspace = true }
 mbx-db = { workspace = true }
+mbx-networks = { workspace = true }
