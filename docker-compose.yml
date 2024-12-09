@@ -40,12 +40,14 @@ services:
         ports:
             - 6789:6789
             - 8080:8080
+            - 5678:5678
         volumes:
             - ln-data:/var/opt/CampbellSci/LoggerNet/data
             - ${LN_SOFTWARE}:/opt/ln
             - ./mbx-networks/loggernet:/app
         environment:
             - LN_VERSION=${LN_VERSION}
+            - APP_MODE=debug
 
 
 networks:

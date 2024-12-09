@@ -5,6 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: FastAPI (Remote Debug)",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "0.0.0.0",  // Ensure this matches your Docker setup
+                "port": 5678          // Debugger port exposed in Docker
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/mbx-networks/loggernet", // Local project root
+                    "remoteRoot": "/app"             // Path inside the container
+                }
+            ]
+        },
+        {
             "name": "Debug MBX Main",
             "type": "debugpy",
             "request": "launch",
@@ -18,6 +33,6 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
     ]
 }
