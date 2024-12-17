@@ -125,10 +125,7 @@ def init_nocodb(
         nocodb_url=CONFIG.nocodb_url,
     )
 
-    base_schema = BaseSchema(
-        base_id,
-        tables
-    )
+    base_schema = BaseSchema(base_id, tables)
 
     base_schema.match_relationship_column_ids()
     base_schema = create.populate_relationships_lookups_formulas(
