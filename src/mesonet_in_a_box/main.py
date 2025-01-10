@@ -108,9 +108,9 @@ def init_nocodb(
             if rename_base:
                 base_name = typer.prompt("Please enter the new base name")
 
-                assert (
-                    base_name != base_title
-                ), "New base name is still equal to existing name."
+                assert base_name != base_title, (
+                    "New base name is still equal to existing name."
+                )
 
     base_id = create.create_mesonet_base(
         nocodb_token=CONFIG.nocodb_token,
@@ -172,9 +172,9 @@ def create_schema_from_existing():
         prompt_suffix="",
     )
 
-    assert choice in range(
-        len(options)
-    ), f"Your choice must be in {range(len(options))}. Please try again."
+    assert choice in range(len(options)), (
+        f"Your choice must be in {range(len(options))}. Please try again."
+    )
 
     base_id = bases["list"][choice]["id"]
     tables = create.create_tables_from_base(
