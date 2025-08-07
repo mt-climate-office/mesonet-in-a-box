@@ -1,19 +1,4 @@
 services:
-    nocodb:
-        container_name: nocodb
-        depends_on: 
-            db: 
-                condition: service_healthy
-        environment: 
-            NC_DB: "pg://db:5432?u=${POSTGRES_USER}&p=${POSTGRES_PASSWORD}&d=nocodb"
-        image: "nocodb/nocodb:latest"
-        ports: 
-            - "8080:8080"
-        networks:
-            - web
-        restart: always
-        volumes: 
-            - "nc-data:/usr/app/data"
     db:
         platform: linux/amd64
         container_name: db
@@ -23,7 +8,7 @@ services:
             retries: 10
             test: "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""
             timeout: 2s
-        image: timescale/timescaledb-ha:pg16
+        image: timescale/timescaledb-ha:pg17
         ports: 
             - "5432:5432"
         networks:
@@ -38,7 +23,7 @@ services:
         build: ./mbx-networks/loggernet
         restart: always
         ports:
-            - 6789:6789
+            - 6788:6789
             - 8080:8080
             - 5678:5678
         volumes:
@@ -56,5 +41,4 @@ networks:
 
 volumes: 
     db-data: {}
-    nc-data: {}
     ln-data: {}

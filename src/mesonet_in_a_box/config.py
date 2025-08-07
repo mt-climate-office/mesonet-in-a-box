@@ -16,12 +16,12 @@ class KeyNotFoundError(Exception): ...
 class Config:
     directory: Path = Path.home() / ".config" / "mbx"
     file: Path = directory / "config.json"
-    nocodb_token: Optional[str] = ""
-    nocodb_url: Optional[str] = "http://localhost:8080"
+    env_file: Path = Path.cwd() / ".env"
 
     def __post_init__(self):
         self.directory = self.parse_as_path(self.directory)
         self.file = self.parse_as_path(self.file)
+        self.env_file = self.parse_as_path(self.env_file)
 
     @staticmethod
     def parse_as_path(f: Path | str | None) -> Path:
@@ -70,10 +70,5 @@ class Config:
                 data = json.load(json_file)
         except (TypeError, FileNotFoundError):
             data = {}
-
-        nocodb_token = keyring.get_password("mbx", "nocodb_token")
-
-        if nocodb_token:
-            data.update({"nocodb_token": nocodb_token})
 
         return cls(**data)
