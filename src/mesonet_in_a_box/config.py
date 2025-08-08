@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Literal
 
 import keyring
 import typer
@@ -17,6 +17,9 @@ class Config:
     directory: Path = Path.home() / ".config" / "mbx"
     file: Path = directory / "config.json"
     env_file: Path = Path.cwd() / ".env"
+    inventory_backend: Literal["airtable", "nocodb", "baserow"] = "airtable"
+    backend_token: str = ""
+    backend_base_id: str = ""
 
     def __post_init__(self):
         self.directory = self.parse_as_path(self.directory)
@@ -30,12 +33,6 @@ class Config:
         except TypeError:
             return None
 
-    def read(self) -> dict[str, str]:
-        with open(self.file, "r") as json_file:
-            dat = json.load(json_file)
-
-        return dat
-
     def write(self) -> None:
         with open(self.file.expanduser(), "w") as json_file:
             out = {}
@@ -43,7 +40,9 @@ class Config:
                 if isinstance(v, Path):
                     v = str(v)
 
-                if "key" not in k:
+                if k == "backend_token":
+                    keyring.set_password("mbx", "backend_token", v)
+                else:
                     out[k] = v
 
             json.dump(
@@ -70,5 +69,10 @@ class Config:
                 data = json.load(json_file)
         except (TypeError, FileNotFoundError):
             data = {}
+
+        backend_token = keyring.get_password("mbx", "backend_token")
+
+        if backend_token:
+            data.update({"backend_token": backend_token})
 
         return cls(**data)

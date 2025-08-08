@@ -11,8 +11,6 @@ services:
         image: timescale/timescaledb-ha:pg17
         ports: 
             - "5432:5432"
-        networks:
-            - web
         volumes:
             - db-data:/var/lib/postgresql/data      
         env_file:
@@ -33,11 +31,6 @@ services:
         environment:
             - LN_VERSION=${LN_VERSION}
             - APP_MODE=debug
-
-
-networks:
-    web:
-        external: true
 
 volumes: 
     db-data: {}
