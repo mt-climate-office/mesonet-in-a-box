@@ -2,6 +2,7 @@ import click
 
 from mbx_db.cli import app as db_app
 from mbx_inventory import backends
+from mbx_inventory.cli.main import app as inven_app
 from .config import Config
 
 import typer
@@ -17,6 +18,7 @@ def callback():
 
 app = typer.Typer(rich_markup_mode="rich", callback=callback)
 app.add_typer(db_app, name="db")
+app.add_typer(inven_app, name="inventory")
 
 
 @app.command()

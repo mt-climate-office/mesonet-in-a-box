@@ -1,0 +1,29 @@
+{
+  "backend": {
+    "type": "airtable",
+    "config": {
+      "api_key": "${AIRTABLE_API_KEY}",
+      "base_id": "${AIRTABLE_BASE_ID}"
+    }
+  },
+  "database": {
+    "host": "${POSTGRES_HOST}",
+    "port": 5432,
+    "database": "${POSTGRES_DB}",
+    "username": "${POSTGRES_USER}",
+    "password": "${POSTGRES_PASSWORD}"
+  },
+  "table_mappings": {
+    "elements": "Elements",
+    "stations": "Stations",
+    "component_models": "Component Model Elements",
+    "inventory": "Component Inventory",
+    "deployments": "Component Deployments",
+    "component_elements": "Component Model Elements"
+  },
+  "sync_options": {
+    "batch_size": 100,
+    "timeout": 30,
+    "retry_attempts": 3
+  }
+}
