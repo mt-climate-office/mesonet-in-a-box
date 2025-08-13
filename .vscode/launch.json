@@ -32,6 +32,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
+            "args": ["inventory", "sync", "-c", "${workspaceFolder}/inventory_config.json", "--dry-run", "-v"],
             "justMyCode": false
         },
     ]

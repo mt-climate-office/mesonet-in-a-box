@@ -1,0 +1,91 @@
+{
+    "backend": {
+        "type": "airtable",
+        "config": {
+            "api_key": "${AIRTABLE_API_KEY}",
+            "base_id": "${AIRTABLE_BASE_ID}"
+        }
+    },
+    "database": {
+        "host": "${POSTGRES_HOST}",
+        "port": 5432,
+        "database": "${POSTGRES_DB}",
+        "username": "${POSTGRES_USER}",
+        "password": "${POSTGRES_PASSWORD}"
+    },
+    "tables": {
+        "component_models": {
+            "backend_table_name": "Component Models",
+            "enabled": true,
+            "field_mappings": {
+                "model": "Model Name",
+                "manufacturer": "Manufacturer Name",
+                "description": "Model Description"
+            }
+        },
+        "elements": {
+            "backend_table_name": "Elements",
+            "enabled": true,
+            "field_mappings": {
+                "element": "Element Name",
+                "description": "Full Description",
+                "description_short": "Short Description",
+                "si_units": "SI Unit",
+                "us_units": "US Unit"
+            }
+        },
+        "stations": {
+            "backend_table_name": "Stations",
+            "enabled": true,
+            "field_mappings": {
+                "station_id": "Station ID",
+                "name": "Station Name",
+                "latitude": "Lat",
+                "longitude": "Lon",
+                "elevation": "Elevation (m)",
+                "timezone": "Time Zone"
+            }
+        },
+        "inventory": {
+            "backend_table_name": "Component Inventory",
+            "enabled": true,
+            "field_mappings": {
+                "serial_number": "Serial #",
+                "model": "Model Name",
+                "purchase_date": "Purchase Date",
+                "status": "Current Status"
+            }
+        },
+        "deployments": {
+            "backend_table_name": "Component Deployments",
+            "enabled": true,
+            "field_mappings": {
+                "station": "Station Name",
+                "serial_number": "Serial #",
+                "deployment_date": "Deploy Date",
+                "retrieval_date": "Retrieve Date"
+            }
+        },
+        "component_elements": {
+            "backend_table_name": "Component Elements",
+            "enabled": false,
+            "field_mappings": {
+                "model": "Model Name",
+                "element": "Element Name"
+            }
+        },
+        "request_schemas": {
+            "backend_table_name": "Request Schemas",
+            "enabled": false
+        },
+        "response_schemas": {
+            "backend_table_name": "Response Schemas",
+            "enabled": false
+        }
+    },
+    "sync_options": {
+        "batch_size": 100,
+        "timeout": 30,
+        "retry_attempts": 3
+    }
+}

@@ -13,13 +13,78 @@
     "username": "${POSTGRES_USER}",
     "password": "${POSTGRES_PASSWORD}"
   },
-  "table_mappings": {
-    "elements": "Elements",
-    "stations": "Stations",
-    "component_models": "Component Model Elements",
-    "inventory": "Component Inventory",
-    "deployments": "Component Deployments",
-    "component_elements": "Component Model Elements"
+  "tables": {
+      "elements": {
+          "backend_table_name": "Elements",
+          "enabled": true,
+          "field_mappings": {
+              "element": "element",
+              "description": "description",
+              "description_short": "description_short",
+              "si_units": "base_units",
+              "us_units": "us_units"
+          }
+      },
+      "stations": {
+          "backend_table_name": "Stations",
+          "enabled": true,
+          "field_mappings": {
+              "station": "station",
+              "name": "name",
+              "status": "status",
+              "date_installed": "date_installed",
+              "latitude": "latitude",
+              "longitude": "longitude",
+              "elevation": "elevation"
+          }
+      },
+      "component_models": {
+          "backend_table_name": "Component Models",
+          "enabled": true,
+          "field_mappings": {
+              "model": "model",
+              "manufacturer": "manufacturer",
+              "type": "component_type"
+          }
+      },
+      "inventory": {
+          "backend_table_name": "Component Inventory",
+          "enabled": true,
+          "field_mappings": {
+              "serial_number": "serial_number",
+              "model": "model"
+          }
+      },
+      "component_elements": {
+        "backend_table_name": "Component Model Elements",
+        "enabled": true,
+        "field_mappings": {
+            "model": "model",
+            "element": "element"
+        }
+    },
+      "deployments": {
+          "backend_table_name": "Component Deployment",
+          "enabled": true,
+          "field_mappings": {
+              "station": "station_key",
+              "serial_number": "serial_number",
+              "date_assigned": "date_assigned",
+              "date_start": "date_start",
+              "date_end": "date_end",
+              "elevation_cm": "elevation_cm",
+              "model": "model"
+          }
+      },
+
+      "request_schemas": {
+          "backend_table_name": "Request Schemas",
+          "enabled": false
+      },
+      "response_schemas": {
+          "backend_table_name": "Response Schemas",
+          "enabled": false
+      }
   },
   "sync_options": {
     "batch_size": 100,
